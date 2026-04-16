@@ -1,0 +1,42 @@
+let currentFilter = 'all';
+
+function renderCatalog(filter = 'all') {
+    const container = document.getElementById('catalog-products');
+    if (!container) return;
+
+    const filtered = filter === 'all' 
+        ? products 
+        : products.filter(p => p.category === filter);
+
+    container.innerHTML = filtered.map(p => `
+        <div class="product-card">
+            <img src="${p.image}" alt="${p.name}">
+            <div class="product-info">
+                <h3>${p.name}</h3>
+                <div class="price">${p.price.toLocaleString()} ₽</div>
+                <a href="product.html?id=${p.id}" class="btn">Подробнее</a>
+                <button class="btn" onclick="addToCart(${p.id})">В корзину</button>
+
+            </div>
+        </div>
+    `).join('');
+}
+
+function setupFilters() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const filter = btn.dataset.filter;
+            currentFilter = filter;
+            renderCatalog(filter);
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderCatalog();
+    setupFilters();
+    updateCartCount();
+});

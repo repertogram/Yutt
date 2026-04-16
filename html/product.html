@@ -1,0 +1,90 @@
+<!DOCTYPE html>                                  <!-- Объявление типа документа HTML5 -->
+<html lang="ru">                                 <!-- Корневой элемент, язык страницы — русский -->
+<head>                                           <!-- Метаданные и подключения -->
+    <meta charset="UTF-8">                       <!-- Кодировка UTF-8 для корректного отображения кириллицы -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Настройки области просмотра для адаптивности -->
+  <!-- Ширина по ширине экрана, масштаб 1 -->
+    <title>Карточка товара</title>               <!-- Заголовок вкладки браузера -->
+    <link rel="stylesheet" href="../css/style.css">  <!-- Подключение общих стилей магазина (путь на уровень выше) -->
+</head>
+<body>                                           <!-- Видимое содержимое страницы -->
+
+    <!-- ==================== ШАПКА САЙТА ==================== -->
+    <header>                                     <!-- Верхняя часть сайта -->
+        <div class="container">                  <!-- Центрирующий контейнер -->
+            <div class="logo">                   <!-- Блок логотипа -->
+                <a href="../site.html">Уют</a>   <!-- Ссылка на главную страницу (на уровень выше) -->
+            </div>
+            <nav>                                <!-- Навигационное меню -->
+                <ul>                             <!-- Ненумерованный список -->
+                    <li><a href="../site.html">Главная</a></li>      <!-- Пункт "Главная" -->
+                    <li><a href="catalog.html">Каталог</a></li>      <!-- Пункт "Каталог" -->
+                    <li>                                           <!-- Пункт "Корзина" -->
+                        <a href="cart.html" class="cart-link">     <!-- Ссылка на корзину -->
+                            Корзина 
+                            <span class="cart-count">0</span>       <!-- Счётчик товаров в корзине (обновляется JS) -->
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- Кнопка переключения светлой/тёмной темы -->
+            <button class="theme-toggle" id="themeToggle">🌙 Тёмная</button>
+        </div>
+    </header>
+
+    <!-- ==================== ОСНОВНОЙ КОНТЕНТ ==================== -->
+    <main>                                       <!-- Основное содержимое страницы -->
+        <!-- Контейнер для детальной информации о товаре, заполняется через JavaScript -->
+        <div class="container" id="product-detail"></div>
+    </main>
+
+    <!-- ==================== ПОДКЛЮЧЕНИЕ СКРИПТОВ ==================== -->
+    <script src="../js/data.js"></script>        <!-- Данные товаров и вспомогательные функции (products, getImagePath и т.д.) -->
+    <script src="../js/cart.js"></script>        <!-- Логика корзины (addToCart, updateCartCount и др.) -->
+    <script src="../js/product.js"></script>     <!-- Скрипт для отрисовки карточки конкретного товара (берёт ID из URL) -->
+    <script src="../js/theme.js"></script>       <!-- Переключение тёмной темы -->
+
+    <!-- ==================== КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ==================== -->
+    <!-- Фиксированный блок в правом верхнем углу для показа всплывающих сообщений -->
+    <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+    
+    <!-- ==================== СКРИПТ УВЕДОМЛЕНИЙ (ВСТРОЕННЫЙ) ==================== -->
+    <script>
+    (function() {                                          // Самовызывающаяся функция для изоляции
+        const container = document.getElementById('notification-container');  // Находим контейнер
+        if (!container) return;                            // Если контейнера нет — выходим
+
+        // Глобальная функция показа уведомлений
+        window.showNotification = function(message, type = 'success', duration = 3000) {
+            const notification = document.createElement('div');   // Создаём элемент уведомления
+            notification.className = 'notification ' + type;      // Добавляем классы (notification и тип: success/error/warning/info)
+            
+            // Выбор иконки в зависимости от типа
+            let icon = '✅';
+            if (type === 'error') icon = '❌';
+            else if (type === 'warning') icon = '⚠️';
+            else if (type === 'info') icon = 'ℹ️';
+
+            // Внутренняя структура уведомления
+            notification.innerHTML = `
+                <span class="icon">${icon}</span>                <!-- Иконка -->
+                <span class="message">${message}</span>          <!-- Текст сообщения -->
+                <button class="close-btn">&times;</button>       <!-- Кнопка закрытия (крестик) -->
+            `;
+            container.appendChild(notification);                  // Добавляем в контейнер
+
+            const closeBtn = notification.querySelector('.close-btn');  // Находим кнопку закрытия
+            // Функция удаления уведомления с анимацией
+            const remove = () => {
+                notification.style.animation = 'fadeOut 0.2s forwards';  // Запускаем CSS-анимацию исчезновения
+                setTimeout(() => notification.remove(), 200);            // Удаляем элемент после завершения анимации
+            };
+            closeBtn.addEventListener('click', remove);           // Закрытие по клику на крестик
+            if (duration > 0) setTimeout(remove, duration);      // Автоматическое закрытие через duration мс
+        };
+        console.log('✅ showNotification готов');                // Отладочное сообщение
+    })();
+    </script>
+
+</body>
+</html>

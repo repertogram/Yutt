@@ -1,0 +1,512 @@
+/*
+ * ==========================================
+ * СТРУКТУРА ФАЙЛА:
+ * 
+ * 1. Сброс и базовые стили
+ * 2. Типографика и контейнеры
+ * 3. Шапка (header)
+ * 4. Основной контент (main)
+ * 5. Карточки товаров (products)
+ * 6. Кнопки (buttons)
+ * 7. Фильтры (filters)
+ * 8. Корзина (cart)
+ * 9. Тёмная тема (dark theme)
+ * 10. Кнопка переключения темы
+ * 11. Ссылка на товар в корзине
+ * 12. Обёртка изображения и кнопка "плюс"
+ * 13. Уведомления (notifications)
+ * ==========================================
+ */
+
+/* 1. СБРОС И БАЗОВЫЕ СТИЛИ
+   ========================================== */
+* {
+    box-sizing: border-box;  /* Ширина и высота включают padding и border */
+    margin: 0;               /* Убираем внешние отступы */
+    padding: 0;              /* Убираем внутренние отступы */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  /* Системный шрифт */
+    background: #f9f9f9;      /* Светло-серый фон для светлой темы */
+    color: #333;              /* Тёмно-серый цвет текста */
+    line-height: 1.6;         /* Межстрочный интервал для читаемости */
+}
+
+/* 2. ТИПОГРАФИКА И КОНТЕЙНЕРЫ
+   ========================================== */
+.container {
+    max-width: 1200px;        /* Максимальная ширина контента */
+    margin: 0 auto;           /* Центрирование по горизонтали */
+    padding: 0 20px;          /* Отступы по бокам для мобильных */
+}
+
+/* 3. ШАПКА (HEADER)
+   ========================================== */
+header {
+    background: #2c3e50;      /* Тёмно-синий фон шапки */
+    color: #fff;              /* Белый текст */
+    padding: 15px 0;          /* Вертикальные отступы */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);  /* Лёгкая тень под шапкой */
+}
+
+header .container {
+    display: flex;            /* Flex-контейнер для расположения логотипа, навигации и кнопки */
+    justify-content: space-between;  /* Равномерное распределение по краям */
+    align-items: center;      /* Вертикальное выравнивание по центру */
+}
+
+.logo a {
+    color: #fff;              /* Белый цвет логотипа */
+    text-decoration: none;    /* Убираем подчёркивание */
+    font-size: 28px;          /* Размер шрифта */
+    font-weight: bold;        /* Жирное начертание */
+}
+
+nav ul {
+    list-style: none;         /* Убираем маркеры списка */
+    display: flex;            /* Горизонтальное расположение пунктов */
+    gap: 25px;                /* Расстояние между пунктами */
+}
+
+nav ul li a {
+    color: #ecf0f1;           /* Светло-серый цвет ссылок */
+    text-decoration: none;    /* Убираем подчёркивание */
+    font-weight: 500;         /* Полужирное начертание */
+    transition: color 0.3s;   /* Плавное изменение цвета при наведении */
+}
+
+nav ul li a:hover {
+    color: #f39c12;           /* Оранжевый цвет при наведении */
+}
+
+.cart-link {
+    position: relative;       /* Для позиционирования счётчика товаров */
+}
+
+.cart-count {
+    background: #e74c3c;      /* Красный фон счётчика */
+    color: white;             /* Белый текст */
+    border-radius: 50%;       /* Круглая форма */
+    padding: 2px 6px;         /* Внутренние отступы */
+    font-size: 12px;          /* Мелкий шрифт */
+    margin-left: 5px;         /* Отступ от слова "Корзина" */
+}
+
+/* 4. ОСНОВНОЙ КОНТЕНТ (MAIN)
+   ========================================== */
+main {
+    min-height: 70vh;         /* Минимальная высота, чтобы футер не прилипал */
+    padding: 30px 0;          /* Вертикальные отступы */
+}
+
+/* 5. КАРТОЧКИ ТОВАРОВ (PRODUCTS)
+   ========================================== */
+.products-grid {
+    display: grid;            /* Grid-сетка для карточек */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));  /* Адаптивные колонки от 250px */
+    gap: 25px;                /* Расстояние между карточками */
+    margin-top: 30px;         /* Отступ сверху */
+}
+
+.product-card {
+    background: white;        /* Белый фон карточки */
+    border-radius: 6px;       /* Скруглённые углы */
+    overflow: hidden;         /* Обрезаем всё, что выходит за границы (для скруглений) */
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);  /* Лёгкая тень */
+    transition: transform 0.3s, box-shadow 0.3s;  /* Плавные анимации при наведении */
+}
+
+.product-card:hover {
+    transform: translateY(-5px);   /* Приподнимаем карточку */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);  /* Усиливаем тень */
+}
+
+.product-card img {
+    width: 100%;              /* Картинка на всю ширину */
+    height: 200px;            /* Фиксированная высота */
+    object-fit: cover;        /* Обрезаем и масштабируем с сохранением пропорций */
+    background: #ddd;         /* Фон-заглушка на время загрузки */
+}
+
+.product-info {
+    padding: 10px;            /* Внутренние отступы */
+}
+
+.product-info h3 {
+    font-size: 18px;          /* Размер названия */
+    margin-bottom: 5px;       /* Отступ снизу */
+}
+
+.product-info .price {
+    font-size: 20px;          /* Размер цены */
+    font-weight: bold;        /* Жирный шрифт */
+    color: #27ae60;           /* Зелёный цвет */
+    margin: 5px 0;            /* Отступы сверху и снизу */
+}
+
+/* 6. КНОПКИ (BUTTONS)
+   ========================================== */
+.btn {
+    display: inline-block;    /* Блочно-строчный элемент */
+    background: #3498db;      /* Синий фон */
+    color: white;             /* Белый текст */
+    padding: 8px 16px;        /* Внутренние отступы */
+    border-radius: 4px;       /* Скруглённые углы */
+    text-decoration: none;    /* Убираем подчёркивание у ссылок */
+    border: none;             /* Убираем рамку у кнопок */
+    cursor: pointer;          /* Курсор "рука" */
+    font-size: 14px;          /* Размер шрифта */
+    transition: background 0.3s;  /* Плавное изменение фона */
+}
+
+.btn:hover {
+    background: #2980b9;      /* Более тёмный синий при наведении */
+}
+
+.btn-danger {
+    background: #e74c3c;      /* Красный фон для опасных действий */
+}
+
+.btn-danger:hover {
+    background: #c0392b;      /* Тёмно-красный при наведении */
+}
+
+/* 7. ФИЛЬТРЫ В КАТАЛОГЕ (FILTERS)
+   ========================================== */
+.filters {
+    margin-bottom: 20px;      /* Отступ снизу */
+}
+
+.filter-btn {
+    background: #ecf0f1;      /* Светло-серый фон */
+    border: none;             /* Без рамки */
+    padding: 8px 16px;        /* Внутренние отступы */
+    margin-right: 10px;       /* Отступ справа */
+    border-radius: 20px;      /* Скруглённые углы (капсула) */
+    cursor: pointer;          /* Курсор-рука */
+    transition: all 0.3s;     /* Плавные изменения */
+}
+
+.filter-btn.active {
+    background: #3498db;      /* Синий фон для активного фильтра */
+    color: white;             /* Белый текст */
+}
+
+/* 8. КОРЗИНА (CART)
+   ========================================== */
+.cart-table {
+    width: 100%;              /* Таблица на всю ширину */
+    border-collapse: collapse; /* Убираем двойные границы */
+    background: white;        /* Белый фон */
+    border-radius: 8px;       /* Скруглённые углы */
+    overflow: hidden;         /* Для обрезки скруглений */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);  /* Лёгкая тень */
+}
+
+.cart-table th,
+.cart-table td {
+    padding: 15px;            /* Внутренние отступы ячеек */
+    text-align: left;         /* Выравнивание текста влево */
+    border-bottom: 1px solid #eee;  /* Разделительная линия */
+}
+
+.cart-table th {
+    background: #f8f9fa;      /* Светло-серый фон заголовков */
+}
+
+.quantity-control {
+    display: flex;            /* Flex-контейнер для кнопок количества */
+    align-items: center;      /* Вертикальное выравнивание */
+    gap: 8px;                 /* Расстояние между элементами */
+}
+
+.quantity-control button {
+    width: 28px;              /* Ширина кнопки */
+    height: 28px;             /* Высота кнопки */
+    background: #ddd;         /* Серый фон */
+    border: none;             /* Без рамки */
+    border-radius: 4px;       /* Скруглённые углы */
+    cursor: pointer;          /* Курсор-рука */
+}
+
+.cart-total {
+    text-align: right;        /* Выравнивание текста вправо */
+    font-size: 24px;          /* Крупный шрифт */
+    margin: 20px 0;           /* Отступы сверху и снизу */
+}
+
+/* 9. ТЁМНАЯ ТЕМА (DARK THEME)
+   ========================================== */
+:root {
+    --bg-light: #f9f9f9;           /* Переменная: светлый фон */
+    --text-light: #333;            /* Переменная: тёмный текст для светлой темы */
+    --header-bg-light: #2c3e50;    /* Переменная: фон шапки */
+    --card-bg-light: #ffffff;      /* Переменная: фон карточки */
+    --footer-bg-light: #2c3e50;    /* Переменная: фон футера */
+}
+
+body.dark-theme {
+    --bg-light: #1a1a1a;           /* Переопределяем переменные для тёмной темы */
+    --text-light: #e0e0e0;
+    --header-bg-light: #1e2a3a;
+    --card-bg-light: #2c2c2c;
+    --footer-bg-light: #1e2a3a;
+    background: var(--bg-light);    /* Применяем переменную фона */
+    color: var(--text-light);       /* Применяем переменную цвета текста */
+}
+
+body.dark-theme header {
+    background: var(--header-bg-light);  /* Шапка в тёмной теме */
+}
+
+body.dark-theme .product-card {
+    background: var(--card-bg-light);    /* Карточки в тёмной теме */
+    box-shadow: 0 3px 10px rgba(255,255,255,0.05);  /* Более светлая тень */
+}
+
+body.dark-theme footer {
+    background: var(--footer-bg-light);  /* Футер в тёмной теме */
+}
+
+body.dark-theme .cart-table {
+    background: var(--card-bg-light);    /* Таблица корзины */
+}
+
+body.dark-theme .cart-table th {
+    background: #333;                    /* Заголовки таблицы в тёмной теме */
+    color: #eee;
+}
+
+body.dark-theme .cart-table td {
+    border-bottom: 1px solid #444;       /* Линии между строками */
+}
+
+body.dark-theme .btn {
+    background: #3a6ea5;                 /* Кнопки в тёмной теме */
+}
+
+body.dark-theme .btn-danger {
+    background: #b03a2e;                 /* Красная кнопка в тёмной теме */
+}
+
+body.dark-theme .filter-btn {
+    background: #444;                    /* Кнопки фильтров в тёмной теме */
+    color: #ddd;
+}
+
+body.dark-theme .filter-btn.active {
+    background: #3a6ea5;                 /* Активный фильтр в тёмной теме */
+}
+
+/* 10. КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ (THEME TOGGLE)
+   ========================================== */
+.theme-toggle {
+    background: none;                    /* Прозрачный фон */
+    border: 1px solid currentColor;      /* Рамка цвета текста */
+    color: inherit;                      /* Цвет текста наследуется */
+    padding: 5px 10px;                   /* Внутренние отступы */
+    border-radius: 20px;                 /* Скруглённые углы */
+    cursor: pointer;                     /* Курсор-рука */
+    margin-left: 15px;                   /* Отступ слева */
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.theme-toggle:hover {
+    background: rgba(255,255,255,0.1);    /* Лёгкое затемнение при наведении */
+}
+
+body.dark-theme .theme-toggle {
+    border-color: #aaa;                  /* Цвет рамки в тёмной теме */
+}
+
+/* 11. ССЫЛКА НА ТОВАР В КОРЗИНЕ (CART PRODUCT LINK)
+   ========================================== */
+.cart-product-link {
+    color: #2c3e50;                      /* Цвет текста */
+    text-decoration: none;               /* Без подчёркивания */
+    font-weight: 500;
+    position: relative;                  /* Для позиционирования псевдоэлемента */
+    transition: color 0.2s;
+}
+
+.cart-product-link::after {
+    content: '';                         /* Псевдоэлемент для линии */
+    position: absolute;
+    width: 100%;
+    height: 1px;                         /* Толщина линии */
+    bottom: -2px;
+    left: 0;
+    background-color: #3498db;           /* Цвет линии */
+    transform: scaleX(0);                /* Сжата до нуля (скрыта) */
+    transform-origin: bottom right;      /* Точка трансформации */
+    transition: transform 0.3s ease-out;
+}
+
+.cart-product-link:hover {
+    color: #3498db;                      /* Изменение цвета текста */
+}
+
+.cart-product-link:hover::after {
+    transform: scaleX(1);                /* Линия появляется */
+    transform-origin: bottom left;
+}
+
+/* Тёмная тема для ссылки */
+body.dark-theme .cart-product-link {
+    color: #ecf0f1;
+}
+
+body.dark-theme .cart-product-link:hover {
+    color: #5dade2;
+}
+
+body.dark-theme .cart-product-link::after {
+    background-color: #5dade2;
+}
+
+/* 12. ОБЁРТКА ИЗОБРАЖЕНИЯ И КНОПКА "ПЛЮС" (QUICK ADD)
+   ========================================== */
+.product-image-wrapper {
+    position: relative;                  /* Контекст для абсолютного позиционирования кнопки */
+    overflow: visible;                   /* Не обрезаем кнопку, если она выходит */
+}
+
+.product-image-wrapper img {
+    display: block;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Кнопка-плюсик (быстрое добавление в корзину) */
+.quick-add {
+    position: absolute;
+    top: 230px;                          /* Позиция от верха родителя (ниже картинки) */
+    right: 10px;                         /* Отступ справа */
+    width: 36px;
+    height: 36px;
+    background: #f8f8f8;                 /* Почти белый фон */
+    border: 1px solid #bdc3c7;           /* Серая рамка */
+    border-radius: 50%;                  /* Круглая форма */
+    font-size: 28px;
+    font-weight: 300;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;                 /* Центрирование по вертикали */
+    justify-content: center;             /* Центрирование по горизонтали */
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+    line-height: 1;
+    padding: 0;
+    backdrop-filter: blur(4px);          /* Размытие фона позади кнопки */
+}
+
+.quick-add:hover {
+    background: #3498db;                 /* Синий фон при наведении */
+    color: white;
+    transform: scale(1.1);               /* Увеличение */
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
+/* Тёмная тема для плюсика */
+body.dark-theme .quick-add {
+    background: rgba(40, 40, 40, 0.9);
+    color: #ecf0f1;
+}
+
+body.dark-theme .quick-add:hover {
+    background: #5dade2;
+    color: #1a1a1a;
+}
+
+/* 13. УВЕДОМЛЕНИЯ (NOTIFICATIONS)
+   ========================================== */
+.notification {
+    min-width: 250px;
+    max-width: 350px;
+    background: white;                   /* Белый фон */
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    margin-bottom: 10px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transform: translateX(120%);         /* Начальное положение за экраном */
+    animation: slideIn 0.3s forwards;    /* Анимация появления */
+    border-left: 4px solid #2ecc71;      /* Зелёная полоса слева (успех) */
+    color: #2c3e50;
+    backdrop-filter: blur(8px);          /* Размытие фона */
+}
+
+.notification.error {
+    border-left-color: #e74c3c;          /* Красная полоса для ошибок */
+}
+
+.notification.warning {
+    border-left-color: #f39c12;          /* Оранжевая полоса для предупреждений */
+}
+
+.notification.info {
+    border-left-color: #3498db;          /* Синяя полоса для информации */
+}
+
+.notification .icon {
+    font-size: 24px;                     /* Размер иконки */
+}
+
+.notification .message {
+    flex: 1;                             /* Занимает всё доступное пространство */
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.notification .close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #95a5a6;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.notification .close-btn:hover {
+    background: rgba(0,0,0,0.05);
+    color: #2c3e50;
+}
+
+/* Анимация появления уведомления */
+@keyframes slideIn {
+    to { transform: translateX(0); }     /* Конечное положение */
+}
+
+/* Анимация исчезновения (при закрытии) */
+@keyframes fadeOut {
+    to { opacity: 0; transform: translateX(20px); }
+}
+
+/* Тёмная тема для уведомлений */
+body.dark-theme .notification {
+    background: #2c2c2c;
+    color: #ecf0f1;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+body.dark-theme .notification .close-btn {
+    color: #aaa;
+}
+
+body.dark-theme .notification .close-btn:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}

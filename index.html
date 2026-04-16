@@ -1,0 +1,143 @@
+<!DOCTYPE html>                                  <!-- Объявление типа документа HTML5 -->
+<html lang="ru">                                 <!-- Корневой элемент, язык страницы — русский -->
+<head>                                           <!-- Метаданные и подключения -->
+    <meta charset="UTF-8">                       <!-- Кодировка UTF-8 для корректного отображения кириллицы -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- Настройки области просмотра для адаптивности -->  <!-- Ширина по ширине экрана, масштаб 1 -->
+    <title>Мебельный магазин "Уют"</title>       <!-- Заголовок вкладки браузера -->
+    <link rel="stylesheet" href="css/style.css"> <!-- Подключение основных стилей магазина (путь из корня) -->
+</head>
+<body>                                           <!-- Видимое содержимое страницы -->
+
+    <!-- ==================== ШАПКА САЙТА ==================== -->
+    <header>                                     <!-- Верхняя часть сайта -->
+        <div class="container">                  <!-- Центрирующий контейнер с ограничением ширины -->
+            <div class="logo">                   <!-- Блок логотипа -->
+                <a href="site.html">Уют</a>      <!-- Ссылка на главную страницу (корневой файл) -->
+            </div>
+            <nav>                                <!-- Навигационное меню -->
+                <ul>                             <!-- Ненумерованный список пунктов меню -->
+                    <li><a href="site.html">Главная</a></li>           <!-- Ссылка на главную -->
+                    <li><a href="html/catalog.html">Каталог</a></li>   <!-- Ссылка на каталог (в папке html) -->
+                    <li>                                           <!-- Пункт "Корзина" -->
+                        <a href="html/cart.html" class="cart-link">   <!-- Ссылка на корзину -->
+                            Корзина 
+                            <span class="cart-count">0</span>       <!-- Счётчик товаров в корзине (обновляется JS) -->
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- Кнопка переключения светлой/тёмной темы -->
+            <button class="theme-toggle" id="themeToggle">🌙 Тёмная</button>
+            <!-- Подключение скрипта переключения темы (можно и в конце, но здесь для наглядности) -->
+            <script src="js/theme.js"></script>
+        </div>
+    </header>
+
+    <!-- ==================== ОСНОВНОЙ КОНТЕНТ ==================== -->
+    <main>                                       <!-- Основное содержимое страницы -->
+        
+        <!-- ---------- ГЕРОЙ-БЛОК (ПРИВЕТСТВИЕ) ---------- -->
+        <section class="hero">                   <!-- Секция с крупным заголовком и призывом -->
+            <div class="container">              <!-- Центрирующий контейнер -->
+                <h1>Мебель для вашего дома</h1> <!-- Главный заголовок -->
+                <p>Качество и стиль по доступным ценам</p>  <!-- Подзаголовок -->
+                <a href="html/catalog.html" class="btn">Смотреть каталог</a>  <!-- Кнопка-ссылка в каталог -->
+            </div>
+        </section>
+
+        <!-- ---------- БЛОК ПОПУЛЯРНЫХ ТОВАРОВ ---------- -->
+        <section class="popular">                <!-- Секция с популярными товарами -->
+            <div class="container">              <!-- Центрирующий контейнер -->
+                <h2>Популярные товары</h2>       <!-- Заголовок секции -->
+                <!-- Контейнер, куда будет отрисована сетка товаров через JavaScript -->
+                <div class="products-grid" id="popular-products"></div>
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- ==================== ПОДКЛЮЧЕНИЕ СКРИПТОВ ==================== -->
+    <script src="js/data.js"></script>           <!-- Данные товаров и функции работы с ними (products, addProduct, ...) -->
+    <script src="js/cart.js"></script>           <!-- Логика корзины (addToCart, updateCartCount, ...) -->
+    
+    <!-- ==================== СКРИПТ ДЛЯ ГЛАВНОЙ СТРАНИЦЫ (ВСТРОЕННЫЙ) ==================== -->
+    <script>
+        /**
+         * Функция отрисовки первых 4 товаров в блоке "Популярные товары".
+         * Берёт срез из глобального массива products (data.js) и генерирует HTML-карточки.
+         */
+        function renderPopular() {
+            const container = document.getElementById('popular-products');  // Контейнер для сетки
+            if (!container) return;                     // Если контейнера нет — выходим
+            const popular = products.slice(0, 4);       // Берём первые 4 товара из массива
+            
+            // Генерируем HTML для каждой карточки и вставляем в контейнер
+            container.innerHTML = popular.map(p => `
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <!-- Ссылка на страницу товара, обёрнутая вокруг картинки -->
+                        <a href="html/product.html?id=${p.id}">
+                            <img src="${getImagePath(p.image)}" alt="${p.name}">
+                        </a>
+                        <!-- Кнопка-плюсик для быстрого добавления в корзину -->
+                        <button class="quick-add" onclick="addToCart(${p.id})" title="Добавить в корзину">+</button>
+                    </div>
+                    <div class="product-info">
+                        <h3>${p.name}</h3>                           <!-- Название товара -->
+                        <div class="price">${p.price.toLocaleString()} ₽</div>  <!-- Форматированная цена -->
+                    </div>
+                </div>
+            `).join('');  // Объединяем массив строк в одну HTML-строку
+        }
+
+        // После полной загрузки DOM выполняем отрисовку популярных товаров и обновление счётчика корзины
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPopular();
+            updateCartCount();  // Функция из cart.js
+        });
+    </script>
+    
+    <!-- ==================== КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ==================== -->
+    <!-- Фиксированный блок в правом верхнем углу для показа всплывающих сообщений -->
+    <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+    
+    <!-- ==================== СКРИПТ УВЕДОМЛЕНИЙ (ВСТРОЕННЫЙ) ==================== -->
+    <script>
+    (function() {                                          // Самовызывающаяся функция для изоляции
+        const container = document.getElementById('notification-container');  // Находим контейнер
+        if (!container) return;                            // Если контейнера нет — выходим
+
+        // Глобальная функция показа уведомлений (доступна из любого места)
+        window.showNotification = function(message, type = 'success', duration = 3000) {
+            const notification = document.createElement('div');   // Создаём элемент уведомления
+            notification.className = 'notification ' + type;      // Добавляем классы (notification и тип: success/error/warning/info)
+            
+            // Выбор иконки в зависимости от типа
+            let icon = '✅';
+            if (type === 'error') icon = '❌';
+            else if (type === 'warning') icon = '⚠️';
+            else if (type === 'info') icon = 'ℹ️';
+
+            // Внутренняя структура уведомления
+            notification.innerHTML = `
+                <span class="icon">${icon}</span>                <!-- Иконка -->
+                <span class="message">${message}</span>          <!-- Текст сообщения -->
+                <button class="close-btn">&times;</button>       <!-- Кнопка закрытия (крестик) -->
+            `;
+            container.appendChild(notification);                  // Добавляем в контейнер
+
+            const closeBtn = notification.querySelector('.close-btn');  // Находим кнопку закрытия
+            // Функция удаления уведомления с анимацией
+            const remove = () => {
+                notification.style.animation = 'fadeOut 0.2s forwards';  // Запускаем CSS-анимацию исчезновения
+                setTimeout(() => notification.remove(), 200);            // Удаляем элемент после завершения анимации
+            };
+            closeBtn.addEventListener('click', remove);           // Закрытие по клику на крестик
+            if (duration > 0) setTimeout(remove, duration);      // Автоматическое закрытие через duration мс
+        };
+        console.log('✅ showNotification готов');                // Отладочное сообщение
+    })();
+    </script>
+
+</body>
+</html>

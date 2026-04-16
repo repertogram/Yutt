@@ -1,0 +1,4 @@
+"C:\Program Files\Google\Chrome\Application\chrome.exe" --allow-file-access-from-files --user-data-dir="%TEMP%\chrome_dev_session"
+
+localStorage.removeItem('furniture_products');
+location.reload();
