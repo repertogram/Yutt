@@ -70,29 +70,133 @@
     <script src="../js/data.js"></script>        <!-- Данные товаров (для возможных будущих расширений) -->
     <script src="../js/cart.js"></script>        <!-- Логика корзины (функции getCart, updateCartCount и др.) -->
     
-    <!-- ==================== СКРИПТ ОБРАБОТКИ ФОРМЫ (ВСТРОЕННЫЙ) ==================== -->
-    <script>
-        // Обработчик отправки формы оформления заказа
-        document.getElementById('checkout-form').addEventListener('submit', (e) => {
-            e.preventDefault();                                 // Отменяем стандартную отправку формы (перезагрузку страницы)
-            
-            localStorage.removeItem('cart');                    // Очищаем корзину в localStorage (заказ оформлен)
-            updateCartCount();                                  // Обновляем счётчик товаров в шапке (станет 0)
-            
-            // Выводим сообщение об успешном оформлении в блок #order-message
-            document.getElementById('order-message').innerHTML = `
-                <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px;">
-                    Спасибо за заказ! Мы свяжемся с вами в ближайшее время.
-                </div>
-            `;
-            
-            e.target.reset();                                   // Сбрасываем поля формы к пустым значениям
-        });
 
-        // При загрузке страницы обновляем счётчик корзины в шапке
-        document.addEventListener('DOMContentLoaded', updateCartCount);
-    </script>
+<script>
+    // ==================== МАСКА ВВОДА ТЕЛЕФОНА +7 (XXX) XXX-XX-XX ====================
     
+    const phoneInput = document.querySelector('input[name="phone"]');
+    
+    // Устанавливаем начальное значение маски при загрузке страницы
+    phoneInput.value = '+7 (___) ___-__-__';
+    
+    // Функция применения маски к значению поля
+    function applyMask(value) {
+        // Оставляем только цифры
+        let digits = value.replace(/\D/g, '');
+        
+        // Если номер начинается с 7 или 8, убираем первую цифру (она уже учтена в +7)
+        if (digits.startsWith('7') || digits.startsWith('8')) {
+            digits = digits.substring(1);
+        }
+        
+        // Ограничиваем длину до 10 цифр (остальное отбрасываем)
+        digits = digits.substring(0, 10);
+        
+        // Строим отформатированную строку
+        let formatted = '+7';
+        if (digits.length > 0) {
+            formatted += ' (' + digits.substring(0, 3);
+        }
+        if (digits.length >= 4) {
+            formatted += ') ' + digits.substring(3, 6);
+        }
+        if (digits.length >= 7) {
+            formatted += '-' + digits.substring(6, 8);
+        }
+        if (digits.length >= 9) {
+            formatted += '-' + digits.substring(8, 10);
+        }
+        
+        // Добавляем оставшиеся символы маски (подчёркивания), если цифр меньше
+        if (digits.length < 3) {
+            formatted += '_'.repeat(3 - digits.length);
+        }
+        if (digits.length < 6) {
+            formatted += '_'.repeat(Math.min(3, 6 - Math.max(3, digits.length)));
+        }
+        if (digits.length < 8) {
+            formatted += '_'.repeat(Math.min(2, 8 - Math.max(6, digits.length)));
+        }
+        if (digits.length < 10) {
+            formatted += '_'.repeat(Math.min(2, 10 - Math.max(8, digits.length)));
+        }
+        
+        return formatted;
+    }
+    
+    // При фокусе, если поле содержит только маску, выделяем всё для удобства
+    phoneInput.addEventListener('focus', function() {
+        if (this.value === '+7 (___) ___-__-__') {
+            this.select();
+        }
+    });
+    
+    // Обработка ввода
+    phoneInput.addEventListener('input', function(e) {
+        // Запоминаем позицию курсора
+        const cursorPos = this.selectionStart;
+        const oldLength = this.value.length;
+        
+        // Применяем маску
+        const masked = applyMask(this.value);
+        this.value = masked;
+        
+        // Восстанавливаем позицию курсора (упрощённо)
+        const newLength = masked.length;
+        let newPos = cursorPos;
+        if (oldLength < newLength) {
+            newPos = cursorPos + (newLength - oldLength);
+        }
+        this.setSelectionRange(newPos, newPos);
+    });
+    
+    // При потере фокуса, если ничего не введено, ставим маску
+    phoneInput.addEventListener('blur', function() {
+        const digits = this.value.replace(/\D/g, '');
+        if (digits === '7' || digits === '') {
+            this.value = '+7 (___) ___-__-__';
+        }
+    });
+    
+    // Обработчик отправки формы
+    document.getElementById('checkout-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Получаем сырое значение и извлекаем только цифры
+        const rawValue = phoneInput.value;
+        let digits = rawValue.replace(/\D/g, '');
+        
+        // Если номер начинается с 7 или 8 (и длина >1), убираем первую цифру для проверки
+        if (digits.length > 1 && (digits.startsWith('7') || digits.startsWith('8'))) {
+            digits = digits.substring(1);
+        }
+        
+        // Проверяем, что введено ровно 10 цифр (после кода страны)
+        if (digits.length !== 10) {
+            showNotification('Введите полный номер телефона (10 цифр после кода)', 'error');
+            return;
+        }
+        
+        // Формируем итоговый номер в формате +7XXXXXXXXXX (для отображения)
+        const finalPhone = '+7' + digits;
+        
+        // Очищаем корзину
+        localStorage.removeItem('cart');
+        updateCartCount();
+        
+        // Сообщение об успехе
+        document.getElementById('order-message').innerHTML = `
+            <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px;">
+                Спасибо за заказ! Мы свяжемся с вами по номеру ${finalPhone} в ближайшее время.
+            </div>
+        `;
+        
+        // Сбрасываем форму и восстанавливаем маску
+        e.target.reset();
+        phoneInput.value = '+7 (___) ___-__-__';
+    });
+</script>
+
     <!-- ==================== КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ==================== -->
     <!-- Фиксированный блок в правом верхнем углу для показа всплывающих сообщений -->
     <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
