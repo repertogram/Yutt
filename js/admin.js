@@ -21,9 +21,10 @@ const productDescriptionInput = document.getElementById('productDescription'); /
 const saveBtn = document.getElementById('saveBtn');                       // Кнопка "Сохранить" (меняет текст)
 const cancelBtn = document.getElementById('cancelBtn');                   // Кнопка "Отмена"
 const tableBody = document.getElementById('tableBody');                   // Тело таблицы со списком товаров
-const customersBtn = document.getElementById('customersBtn');       // Кнопка "Покупатели"
-const customersPanel = document.getElementById('customersPanel');   // Панель покупателей
-const backToProductsBtn = document.getElementById('backToProductsBtn'); // Кнопка "Вернуться"
+const customersBtn = document.getElementById('customersBtn');
+const customersPanel = document.getElementById('customersPanel');
+const backToProductsBtn = document.getElementById('backToProductsBtn');
+const ordersTableBody = document.getElementById('ordersTableBody');
 
 // ---------- 3. ПРОВЕРКА СТАТУСА АВТОРИЗАЦИИ ----------
 /**
@@ -37,7 +38,7 @@ function checkAuth() {
         loginBlock.style.display = 'none';
         adminPanel.style.display = 'block';
         renderProductsTable();
-        showProductsPanel();
+        showProductsPanel(); // ← добавлено
     } else {
         loginBlock.style.display = 'block';
         adminPanel.style.display = 'none';
@@ -175,12 +176,23 @@ productForm.addEventListener('submit', (e) => {
 
     resetForm();                           // Очищаем форму
     // Показать панель управления товарами, скрыть панель покупателей
+// Показать панель управления товарами
 function showProductsPanel() {
-    // Показываем все обычные admin-container, кроме панели покупателей
+    // Показываем все обычные контейнеры админки
     document.querySelectorAll('.admin-container:not(#customersPanel)').forEach(el => el.style.display = 'block');
-    customersPanel.style.display = 'none';
+    // Скрываем панель покупателей
+    if (customersPanel) customersPanel.style.display = 'none';
 }
 
+// Показать панель покупателей
+function showCustomersPanel() {
+    // Скрываем все обычные контейнеры
+    document.querySelectorAll('.admin-container:not(#customersPanel)').forEach(el => el.style.display = 'none');
+    // Показываем панель покупателей
+    if (customersPanel) customersPanel.style.display = 'block';
+    // Отрисовываем таблицу заказов
+    renderOrdersTable();
+}
 // Показать панель покупателей, скрыть панели товаров
 function showCustomersPanel() {
     document.querySelectorAll('.admin-container:not(#customersPanel)').forEach(el => el.style.display = 'none');
@@ -189,49 +201,94 @@ function showCustomersPanel() {
     renderProductsTable();                 // Обновляем таблицу
 });
 
+// ==================== УПРАВЛЕНИЕ ПАНЕЛЯМИ (ТОВАРЫ / ПОКУПАТЕЛИ) ====================
+
+function showProductsPanel() {
+    // Показываем все обычные контейнеры админки (кроме панели покупателей)
+    document.querySelectorAll('.admin-container:not(#customersPanel)').forEach(el => el.style.display = 'block');
+    if (customersPanel) customersPanel.style.display = 'none';
+}
+
+function showCustomersPanel() {
+    // Скрываем все обычные контейнеры
+    document.querySelectorAll('.admin-container:not(#customersPanel)').forEach(el => el.style.display = 'none');
+    if (customersPanel) customersPanel.style.display = 'block';
+    renderOrdersTable();
+}
+
+// ==================== ОТОБРАЖЕНИЕ ЗАКАЗОВ ====================
+
+function renderOrdersTable() {
+    if (!ordersTableBody) return;
+
+    const orders = JSON.parse(localStorage.getItem('furniture_orders')) || [];
+
+    if (orders.length === 0) {
+        ordersTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Заказов пока нет</td></tr>';
+        return;
+    }
+
+    // Сортируем по дате (новые сверху)
+    orders.sort((a, b) => b.id - a.id);
+
+    ordersTableBody.innerHTML = orders.map(order => `
+        <tr>
+            <td>#${order.id}</td>
+            <td>${order.date}</td>
+            <td>${order.customerName}</td>
+            <td>${order.phone}</td>
+            <td>${order.total.toLocaleString()} ₽</td>
+            <td>
+                <button class="btn-small btn" data-order-id="${order.id}" data-action="view-order">📄</button>
+            </td>
+        </tr>
+    `).join('');
+
+    // Обработчики кнопок просмотра деталей
+    document.querySelectorAll('[data-action="view-order"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const orderId = parseInt(e.target.dataset.orderId);
+            showOrderDetails(orderId);
+        });
+    });
+}
+
+function showOrderDetails(orderId) {
+    const orders = JSON.parse(localStorage.getItem('furniture_orders')) || [];
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    let itemsText = '';
+    order.items.forEach(item => {
+        itemsText += `${item.name} x ${item.quantity} = ${(item.price * item.quantity).toLocaleString()} ₽\n`;
+    });
+
+    const message = `
+Заказ #${order.id}
+Дата: ${order.date}
+Покупатель: ${order.customerName}
+Телефон: ${order.phone}
+Адрес: ${order.address}
+
+Состав заказа:
+${itemsText}
+----------------
+Итого: ${order.total.toLocaleString()} ₽
+    `;
+
+    alert(message);
+}
+
 // ---------- 11. ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ----------
 document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();                // Проверяем авторизацию и показываем нужный блок
-    updateCartCount();          // Обновляем счётчик товаров в шапке (функция из cart.js)
+    checkAuth();
+    updateCartCount();
 
-
-
-    /**
- * Показывает раздел управления товарами (скрывает панель покупателей)
- */
-function showProductsPanel() {
-    // Показываем все контейнеры с классом admin-container, кроме панели покупателей
-    document.querySelectorAll('.admin-container:not(#customersPanel)').forEach(el => {
-        el.style.display = 'block';
-    });
-    // Скрываем панель покупателей
-    if (customersPanel) {
-        customersPanel.style.display = 'none';
+    // Обработчики для раздела покупателей
+    if (customersBtn) {
+        customersBtn.addEventListener('click', showCustomersPanel);
     }
-}
-
-/**
- * Показывает раздел покупателей (скрывает все остальные admin-container)
- */
-function showCustomersPanel() {
-    // Скрываем все обычные контейнеры админки
-    document.querySelectorAll('.admin-container:not(#customersPanel)').forEach(el => {
-        el.style.display = 'none';
-    });
-    // Показываем панель покупателей
-    if (customersPanel) {
-        customersPanel.style.display = 'block';
+    if (backToProductsBtn) {
+        backToProductsBtn.addEventListener('click', showProductsPanel);
     }
-// Обработчик кнопки "Покупатели"
-if (customersBtn) {
-    customersBtn.addEventListener('click', showCustomersPanel);
-}
-
-// Обработчик кнопки "Вернуться к товарам"
-if (backToProductsBtn) {
-    backToProductsBtn.addEventListener('click', showProductsPanel);
-}
-
-    
-}
 });
