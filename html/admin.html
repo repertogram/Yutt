@@ -128,6 +128,7 @@
                             <span class="cart-count">0</span>       <!-- Счётчик товаров в корзине -->
                         </a>
                     </li>
+                    <li><a href="admin.html">Админ</a></li>
                 </ul>
             </nav>
             <!-- Кнопка переключения светлой/тёмной темы -->
@@ -147,7 +148,6 @@
                     <input type="password" id="passwordInput" placeholder="Введите пароль"> <!-- Поле для пароля -->
                 </div>
                 <button class="btn" id="loginBtn">Войти</button>   <!-- Кнопка отправки -->
-                <p style="margin-top: 10px; font-size: 13px; color: #888;">Подсказка: admin</p>  <!-- Подсказка с паролем -->
             </div>
 
             <!-- ---------- ПАНЕЛЬ УПРАВЛЕНИЯ (СКРЫТА ПО УМОЛЧАНИЮ) ---------- -->
@@ -157,6 +157,7 @@
                 <div class="admin-header">
                     <h1>Управление товарами</h1>          <!-- Основной заголовок -->
                     <button class="btn btn-danger" id="logoutBtn">Выйти</button>   <!-- Кнопка выхода -->
+                            <button class="btn" id="customersBtn" style="margin-right: 10px;">👥 Покупатели</button> <!-- Кнопка Заказов -->
                 </div>
 
                 <!-- ---------- ФОРМА ДОБАВЛЕНИЯ / РЕДАКТИРОВАНИЯ ТОВАРА ---------- -->
@@ -206,6 +207,13 @@
                         <button type="submit" class="btn" id="saveBtn">Сохранить</button>   <!-- Сохранить (добавить/обновить) -->
                         <button type="button" class="btn" id="cancelBtn" style="background: #95a5a6;">Отмена</button>  <!-- Отмена редактирования -->
                     </form>
+                </div>
+                        <!-- Панель покупателей (заглушка) -->
+                    <div id="customersPanel" style="display: none;" class="admin-container">
+                        <h2>База данных заказов (в разработке)</h2>
+                        <p>Здесь будет отображаться список оформленных заказов, информация о покупателях и статусы.</p>
+                        <p>Функционал появится в следующей версии системы.</p>
+                        <button class="btn" id="backToProductsBtn">← Вернуться к товарам</button>
                 </div>
 
                 <!-- ---------- ТАБЛИЦА СПИСКА ТОВАРОВ ---------- -->
