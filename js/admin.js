@@ -25,6 +25,8 @@ const customersBtn = document.getElementById('customersBtn');
 const customersPanel = document.getElementById('customersPanel');
 const backToProductsBtn = document.getElementById('backToProductsBtn');
 const ordersTableBody = document.getElementById('ordersTableBody');
+const productFeaturedInput = document.getElementById('productFeatured');
+let orderModal, closeModalBtn, modalBody;
 
 // ---------- 3. ПРОВЕРКА СТАТУСА АВТОРИЗАЦИИ ----------
 /**
@@ -92,6 +94,7 @@ function renderProductsTable() {
                 <!-- Кнопка удаления -->
                 <button class="btn-small btn-danger" data-id="${p.id}" data-action="delete">Уд.</button>
             </td>
+            <td>${p.featured ? '✅' : '❌'}</td>
         `;
         tableBody.appendChild(row);                // Добавляем строку в таблицу
     });
@@ -133,6 +136,7 @@ function editProduct(id) {
     productPriceInput.value = product.price;
     productImageInput.value = product.image;
     productDescriptionInput.value = product.description || '';
+    productFeaturedInput.checked = product.featured || false;
     saveBtn.textContent = 'Обновить';                  // Меняем надпись на кнопке
 }
 
@@ -144,6 +148,7 @@ function resetForm() {
     productForm.reset();                    // Сбрасываем значения полей к начальным
     productIdInput.value = '';              // Явно очищаем скрытое поле ID
     saveBtn.textContent = 'Сохранить';      // Возвращаем исходный текст кнопки
+    productFeaturedInput.checked = false;
 }
 
 // ---------- 10. СОХРАНЕНИЕ (ДОБАВЛЕНИЕ / ОБНОВЛЕНИЕ) ----------
@@ -156,7 +161,8 @@ productForm.addEventListener('submit', (e) => {
         category: productCategoryInput.value,
         price: parseInt(productPriceInput.value),       // Преобразуем в число
         image: productImageInput.value.trim(),
-        description: productDescriptionInput.value.trim()
+        description: productDescriptionInput.value.trim(),
+        featured: productFeaturedInput.checked
     };
 
     const id = productIdInput.value ? parseInt(productIdInput.value) : null;  // Если есть ID — редактирование, иначе добавление
@@ -254,35 +260,70 @@ function renderOrdersTable() {
 }
 
 function showOrderDetails(orderId) {
+    if (!modalBody) {
+        modalBody = document.getElementById('modalBody');
+    }
+    if (!modalBody) {
+        console.error('modalBody не найден');
+        return;
+    }
+    
     const orders = JSON.parse(localStorage.getItem('furniture_orders')) || [];
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
-    let itemsText = '';
+    // Формируем HTML для содержимого модального окна
+    let itemsHtml = '';
     order.items.forEach(item => {
-        itemsText += `${item.name} x ${item.quantity} = ${(item.price * item.quantity).toLocaleString()} ₽\n`;
+        itemsHtml += `
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                <span>${item.name} x ${item.quantity}</span>
+                <span>${(item.price * item.quantity).toLocaleString()} ₽</span>
+            </div>
+        `;
     });
 
-    const message = `
-Заказ #${order.id}
-Дата: ${order.date}
-Покупатель: ${order.customerName}
-Телефон: ${order.phone}
-Адрес: ${order.address}
-
-Состав заказа:
-${itemsText}
-----------------
-Итого: ${order.total.toLocaleString()} ₽
+    modalBody.innerHTML = `
+        <p><strong>Заказ #${order.id}</strong></p>
+        <p><strong>Дата:</strong> ${order.date}</p>
+        <p><strong>Покупатель:</strong> ${order.customerName}</p>
+        <p><strong>Телефон:</strong> ${order.phone}</p>
+        <p><strong>Адрес:</strong> ${order.address}</p>
+        <div style="margin: 15px 0;">
+            <strong>Состав заказа:</strong>
+            ${itemsHtml}
+        </div>
+        <p style="font-size: 18px; font-weight: bold; text-align: right; margin-top: 15px;">
+            Итого: ${order.total.toLocaleString()} ₽
+        </p>
     `;
 
-    alert(message);
+    // Показываем модальное окно
+    orderModal.style.display = 'flex';
 }
 
 // ---------- 11. ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ----------
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     updateCartCount();
+orderModal = document.getElementById('orderModal');
+closeModalBtn = document.getElementById('closeModalBtn');
+modalBody = document.getElementById('modalBody');
+// Обработчики модального окна
+if (orderModal) {
+    // Закрытие по клику на крестик
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            orderModal.style.display = 'none';
+        });
+    }
+    // Закрытие по клику на затемнённый фон
+    orderModal.addEventListener('click', (e) => {
+        if (e.target === orderModal) {
+            orderModal.style.display = 'none';
+        }
+    });
+}
 
     // Обработчики для раздела покупателей
     if (customersBtn) {

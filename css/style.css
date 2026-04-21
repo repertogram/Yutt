@@ -510,3 +510,43 @@ body.dark-theme .notification .close-btn:hover {
     background: rgba(255,255,255,0.1);
     color: #fff;
 }
+
+
+.modal {
+    transition: opacity 0.2s;
+}
+.modal-content {
+    animation: modalFadeIn 0.2s;
+}
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+body.dark-theme .modal-content {
+    background: #2c2c2c;
+    color: #eee;
+}
+body.dark-theme .modal-content strong {
+    color: #fff;
+}
+
+
+body.dark-theme .modal-content {
+    background: #2c2c2c !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark-theme .modal-content h3,
+body.dark-theme .modal-content p,
+body.dark-theme .modal-content strong,
+body.dark-theme .modal-content span {
+    color: #e0e0e0 !important;
+}
+
+body.dark-theme #closeModalBtn {
+    color: #aaa !important;
+}
+
+body.dark-theme .modal-content div[style*="border-bottom"] {
+    border-bottom-color: #444 !important;
+}
