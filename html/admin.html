@@ -107,6 +107,15 @@
         /* Тёмная тема для заголовков таблицы */
         body.dark-theme .products-table th {
             background: #333;                    /* Тёмно-серый фон */
+
+            body.dark-theme .modal-content {
+            background: #2c2c2c;
+            color: #e0e0e0;
+        }
+        body.dark-theme #closeModalBtn {
+                color: #aaa;
+        }
+
         }
     </style>
 </head>
@@ -128,6 +137,7 @@
                             <span class="cart-count">0</span>       <!-- Счётчик товаров в корзине -->
                         </a>
                     </li>
+                    <li><a href="admin.html">Админ</a></li>
                 </ul>
             </nav>
             <!-- Кнопка переключения светлой/тёмной темы -->
@@ -147,7 +157,6 @@
                     <input type="password" id="passwordInput" placeholder="Введите пароль"> <!-- Поле для пароля -->
                 </div>
                 <button class="btn" id="loginBtn">Войти</button>   <!-- Кнопка отправки -->
-                <p style="margin-top: 10px; font-size: 13px; color: #888;">Подсказка: admin</p>  <!-- Подсказка с паролем -->
             </div>
 
             <!-- ---------- ПАНЕЛЬ УПРАВЛЕНИЯ (СКРЫТА ПО УМОЛЧАНИЮ) ---------- -->
@@ -155,8 +164,11 @@
                 
                 <!-- Шапка панели: заголовок и кнопка выхода -->
                 <div class="admin-header">
-                    <h1>Управление товарами</h1>          <!-- Основной заголовок -->
-                    <button class="btn btn-danger" id="logoutBtn">Выйти</button>   <!-- Кнопка выхода -->
+                    <h1>Управление товарами</h1>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn" id="customersBtn">👥 Покупатели</button>
+                        <button class="btn btn-danger" id="logoutBtn">Выйти</button>
+                    </div>
                 </div>
 
                 <!-- ---------- ФОРМА ДОБАВЛЕНИЯ / РЕДАКТИРОВАНИЯ ТОВАРА ---------- -->
@@ -201,12 +213,35 @@
                             <label>Описание</label>
                             <textarea id="productDescription" rows="3"></textarea>  <!-- Многострочное поле -->
                         </div>
-                        
+
+                        <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="productFeatured" style="width: auto; margin: 0;">
+                            <label for="productFeatured" style="margin: 0;">Показывать на главной</label>
+                        </div>
+
                         <!-- Кнопки управления формой -->
                         <button type="submit" class="btn" id="saveBtn">Сохранить</button>   <!-- Сохранить (добавить/обновить) -->
                         <button type="button" class="btn" id="cancelBtn" style="background: #95a5a6;">Отмена</button>  <!-- Отмена редактирования -->
                     </form>
                 </div>
+                    <!-- Панель покупателей (заказы) -->
+            <div id="customersPanel" style="display: none;" class="admin-container">
+                <h2>📋 Заказы покупателей</h2>
+                <table class="products-table" id="ordersTable">
+                    <thead>
+                        <tr>
+                            <th>ID заказа</th>
+                            <th>Дата</th>
+                            <th>Покупатель</th>
+                            <th>Телефон</th>
+                            <th>Сумма</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody"></tbody>
+                </table>
+                <button class="btn" id="backToProductsBtn" style="margin-top: 20px;">← Вернуться к товарам</button>
+            </div>
 
                 <!-- ---------- ТАБЛИЦА СПИСКА ТОВАРОВ ---------- -->
                 <div class="admin-container">
@@ -219,6 +254,7 @@
                                 <th>Категория</th>         <!-- Категория -->
                                 <th>Цена</th>              <!-- Цена -->
                                 <th>Действия</th>          <!-- Кнопки редактирования/удаления -->
+                                <th>Главная</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody">             <!-- Тело таблицы, заполняется динамически через JS -->
@@ -277,6 +313,19 @@
         console.log('✅ showNotification готов');                // Сообщение в консоль о готовности
     })();
     </script>
+
+<!-- Модальное окно деталей заказа -->
+<div id="orderModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+    <div class="modal-content" style="background: white; border-radius: 8px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 style="margin: 0;">Детали заказа</h3>
+            <button id="closeModalBtn" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #888;">&times;</button>
+        </div>
+        <div id="modalBody">
+            <!-- Содержимое будет вставлено через JS -->
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

@@ -24,6 +24,7 @@
                             <span class="cart-count">0</span>       <!-- Счётчик товаров в корзине (обновляется JS) -->
                         </a>
                     </li>
+                    <li><a href="html/admin.html">Админ</a></li>
                 </ul>
             </nav>
             <!-- Кнопка переключения светлой/тёмной темы -->
@@ -69,7 +70,7 @@
         function renderPopular() {
             const container = document.getElementById('popular-products');  // Контейнер для сетки
             if (!container) return;                     // Если контейнера нет — выходим
-            const popular = products.slice(0, 4);       // Берём первые 4 товара из массива
+            const popular = products.filter(p => p.featured).slice(0, 4);
             
             // Генерируем HTML для каждой карточки и вставляем в контейнер
             container.innerHTML = popular.map(p => `

@@ -24,6 +24,7 @@
                             Корзина 
                             <span class="cart-count">0</span>       <!-- Счётчик товаров в корзине (обновляется JS) -->
                         </a>
+                        <li><a href="admin.html">Админ</a></li>
                     </li>
                 </ul>
             </nav>
@@ -70,29 +71,126 @@
     <script src="../js/data.js"></script>        <!-- Данные товаров (для возможных будущих расширений) -->
     <script src="../js/cart.js"></script>        <!-- Логика корзины (функции getCart, updateCartCount и др.) -->
     
-    <!-- ==================== СКРИПТ ОБРАБОТКИ ФОРМЫ (ВСТРОЕННЫЙ) ==================== -->
-    <script>
-        // Обработчик отправки формы оформления заказа
-        document.getElementById('checkout-form').addEventListener('submit', (e) => {
-            e.preventDefault();                                 // Отменяем стандартную отправку формы (перезагрузку страницы)
-            
-            localStorage.removeItem('cart');                    // Очищаем корзину в localStorage (заказ оформлен)
-            updateCartCount();                                  // Обновляем счётчик товаров в шапке (станет 0)
-            
-            // Выводим сообщение об успешном оформлении в блок #order-message
-            document.getElementById('order-message').innerHTML = `
-                <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px;">
-                    Спасибо за заказ! Мы свяжемся с вами в ближайшее время.
-                </div>
-            `;
-            
-            e.target.reset();                                   // Сбрасываем поля формы к пустым значениям
+
+<script>
+    // ==================== МАСКА ТЕЛЕФОНА + СОХРАНЕНИЕ ЗАКАЗА В LOCALSTORAGE ====================
+
+    const phoneInput = document.querySelector('input[name="phone"]');
+    phoneInput.value = '+7 (___) ___-__-__';
+
+    // Функция применения маски
+    function applyMask(value) {
+        let digits = value.replace(/\D/g, '');
+        if (digits.startsWith('7') || digits.startsWith('8')) {
+            digits = digits.substring(1);
+        }
+        digits = digits.substring(0, 10);
+        let formatted = '+7';
+        if (digits.length > 0) formatted += ' (' + digits.substring(0, 3);
+        if (digits.length >= 4) formatted += ') ' + digits.substring(3, 6);
+        if (digits.length >= 7) formatted += '-' + digits.substring(6, 8);
+        if (digits.length >= 9) formatted += '-' + digits.substring(8, 10);
+        // Заполняем оставшиеся подчёркивания
+        const totalDigits = digits.length;
+        if (totalDigits < 3) formatted += '_'.repeat(3 - totalDigits);
+        if (totalDigits < 6) formatted += '_'.repeat(Math.min(3, 6 - Math.max(3, totalDigits)));
+        if (totalDigits < 8) formatted += '_'.repeat(Math.min(2, 8 - Math.max(6, totalDigits)));
+        if (totalDigits < 10) formatted += '_'.repeat(Math.min(2, 10 - Math.max(8, totalDigits)));
+        return formatted;
+    }
+
+    phoneInput.addEventListener('focus', function() {
+        if (this.value === '+7 (___) ___-__-__') this.select();
+    });
+
+    phoneInput.addEventListener('input', function() {
+        const cursorPos = this.selectionStart;
+        const oldLength = this.value.length;
+        const masked = applyMask(this.value);
+        this.value = masked;
+        const newLength = masked.length;
+        let newPos = cursorPos;
+        if (oldLength < newLength) newPos = cursorPos + (newLength - oldLength);
+        this.setSelectionRange(newPos, newPos);
+    });
+
+    phoneInput.addEventListener('blur', function() {
+        const digits = this.value.replace(/\D/g, '');
+        if (digits === '7' || digits === '') this.value = '+7 (___) ___-__-__';
+    });
+
+    // Обработчик отправки формы
+    document.getElementById('checkout-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // 1. Получаем данные формы
+        const name = document.querySelector('input[name="name"]').value.trim();
+        const address = document.querySelector('textarea[name="address"]').value.trim();
+        let phoneRaw = phoneInput.value;
+        let digits = phoneRaw.replace(/\D/g, '');
+        if (digits.length > 1 && (digits.startsWith('7') || digits.startsWith('8'))) {
+            digits = digits.substring(1);
+        }
+
+        // 2. Валидация телефона
+        if (digits.length !== 10) {
+            showNotification('Введите полный номер телефона (10 цифр после кода)', 'error');
+            return;
+        }
+        const finalPhone = '+7' + digits;
+
+        // 3. Получаем текущую корзину
+        const cart = getCart();
+        if (cart.length === 0) {
+            showNotification('Корзина пуста', 'error');
+            return;
+        }
+
+        // 4. Формируем объект заказа
+        const orderItems = cart.map(item => {
+            const product = products.find(p => p.id === item.id);
+            return {
+                id: item.id,
+                name: product ? product.name : 'Товар удалён',
+                price: product ? product.price : 0,
+                quantity: item.quantity
+            };
         });
 
-        // При загрузке страницы обновляем счётчик корзины в шапке
-        document.addEventListener('DOMContentLoaded', updateCartCount);
-    </script>
-    
+        const total = getCartTotal();
+
+        const newOrder = {
+            id: Date.now(),                         // уникальный ID по времени
+            date: new Date().toLocaleString('ru-RU'), // читаемая дата
+            customerName: name,
+            phone: finalPhone,
+            address: address,
+            items: orderItems,
+            total: total
+        };
+
+        // 5. Сохраняем заказ в localStorage
+        const orders = JSON.parse(localStorage.getItem('furniture_orders')) || [];
+        orders.push(newOrder);
+        localStorage.setItem('furniture_orders', JSON.stringify(orders));
+
+        // 6. Очищаем корзину и обновляем счётчик
+        localStorage.removeItem('cart');
+        updateCartCount();
+
+        // 7. Сообщение об успехе
+        document.getElementById('order-message').innerHTML = `
+            <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px;">
+                Спасибо за заказ! Мы свяжемся с вами по номеру ${finalPhone} в ближайшее время.
+            </div>
+        `;
+
+        // 8. Сбрасываем форму
+        e.target.reset();
+        phoneInput.value = '+7 (___) ___-__-__';
+    });
+</script>
+
     <!-- ==================== КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ==================== -->
     <!-- Фиксированный блок в правом верхнем углу для показа всплывающих сообщений -->
     <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
