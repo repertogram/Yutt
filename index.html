@@ -38,13 +38,50 @@
     <main>                                       <!-- Основное содержимое страницы -->
         
         <!-- ---------- ГЕРОЙ-БЛОК (ПРИВЕТСТВИЕ) ---------- -->
-        <section class="hero">                   <!-- Секция с крупным заголовком и призывом -->
-            <div class="container">              <!-- Центрирующий контейнер -->
-                <h1>Мебель для вашего дома</h1> <!-- Главный заголовок -->
-                <p>Качество и стиль по доступным ценам</p>  <!-- Подзаголовок -->
-                <a href="html/catalog.html" class="btn">Смотреть каталог</a>  <!-- Кнопка-ссылка в каталог -->
+<section class="hero">
+    <div class="hero-slider">
+        <div class="slides-container">
+            <!-- Слайд 1 -->
+            <div class="slide active">
+                <div class="slide-bg" style="background-image: url('images/hero-bg1.jpg');"></div>
+                <div class="container slide-content">
+                    <h1>Мебель для вашего дома</h1>
+                    <p>Качество и стиль по доступным ценам</p>
+                    <a href="html/catalog.html" class="btn">Смотреть каталог</a>
+                </div>
             </div>
-        </section>
+            <!-- Слайд 2 -->
+            <div class="slide">
+                <div class="slide-bg" style="background-image: url('images/hero-bg2.jpg');"></div>
+                <div class="container slide-content">
+                    <h1>Новая коллекция 2026</h1>
+                    <p>Скидки до 30% на мягкую мебель</p>
+                    <a href="html/catalog.html" class="btn">В каталог</a>
+                </div>
+            </div>
+            <!-- Слайд 3 -->
+            <div class="slide">
+                <div class="slide-bg" style="background-image: url('images/hero-bg3.jpg');"></div>
+                <div class="container slide-content">
+                    <h1>Бесплатная доставка</h1>
+                    <p>При заказе от 30 000 ₽</p>
+                    <a href="html/catalog.html" class="btn">Выбрать мебель</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопки навигации -->
+        <button class="slider-btn prev" aria-label="Предыдущий слайд">&#10094;</button>
+        <button class="slider-btn next" aria-label="Следующий слайд">&#10095;</button>
+
+        <!-- Индикаторы (точки) -->
+        <div class="slider-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </div>
+</section>
 
         <!-- ---------- БЛОК ПОПУЛЯРНЫХ ТОВАРОВ ---------- -->
         <section class="popular">                <!-- Секция с популярными товарами -->
@@ -139,6 +176,75 @@
         console.log('✅ showNotification готов');                // Отладочное сообщение
     })();
     </script>
+
+<script>
+    (function() {
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        const prevBtn = document.querySelector('.prev');
+        const nextBtn = document.querySelector('.next');
+        let currentIndex = 0;
+        let slideInterval;
+
+        function showSlide(index) {
+            if (index >= slides.length) index = 0;
+            if (index < 0) index = slides.length - 1;
+            
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            currentIndex = index;
+        }
+
+        function nextSlide() {
+            showSlide(currentIndex + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentIndex - 1);
+        }
+
+        function startAutoSlide() {
+            slideInterval = setInterval(nextSlide, 5000);
+        }
+
+        function stopAutoSlide() {
+            clearInterval(slideInterval);
+        }
+
+        // Обработчики
+        if (nextBtn) nextBtn.addEventListener('click', () => {
+            nextSlide();
+            stopAutoSlide();
+            startAutoSlide();
+        });
+
+        if (prevBtn) prevBtn.addEventListener('click', () => {
+            prevSlide();
+            stopAutoSlide();
+            startAutoSlide();
+        });
+
+        dots.forEach((dot, i) => {
+            dot.addEventListener('click', () => {
+                showSlide(i);
+                stopAutoSlide();
+                startAutoSlide();
+            });
+        });
+
+        // Остановка автослайда при наведении
+        const slider = document.querySelector('.hero-slider');
+        slider.addEventListener('mouseenter', stopAutoSlide);
+        slider.addEventListener('mouseleave', startAutoSlide);
+
+        // Запуск
+        startAutoSlide();
+    })();
+</script>
 
 </body>
 </html>
