@@ -1,47 +1,45 @@
 <!DOCTYPE html>                                  <!-- Объявление типа документа HTML5 -->
-<html lang="ru">                                 <!-- Корневой элемент с указанием языка (русский) -->
-<head>                                           <!-- Мета-информация о странице -->
-    <meta charset="UTF-8">                       <!-- Кодировка символов UTF-8 для поддержки кириллицы -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- Настройки области просмотра для мобильных устройств --> <!-- Ширина по ширине экрана, начальный масштаб 1.0 -->
+<html lang="ru">                                 <!-- Корневой элемент, язык страницы – русский -->
+<head>                                           <!-- Метаданные страницы -->
+    <meta charset="UTF-8">                       <!-- Кодировка UTF-8 для корректного отображения кириллицы -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Адаптивный вьюпорт для мобильных устройств -->
     <title>Админ-панель | Уют</title>           <!-- Заголовок вкладки браузера -->
-    <link rel="stylesheet" href="../css/style.css">  <!-- Подключение основных стилей магазина (путь на уровень выше) -->
-    
-    <!-- Дополнительные стили для страницы админки -->
+    <link rel="stylesheet" href="../css/style.css">  <!-- Подключаем основные стили магазина (находимся в папке html, поэтому ../) -->
+
+    <!-- Внутренние дополнительные стили именно для админ-панели -->
     <style>
-        /* ===== СТИЛИ АДМИН-ПАНЕЛИ ===== */
-        
-        /* Контейнер для панели управления */
+        /* ----- ОСНОВНЫЕ КОНТЕЙНЕРЫ АДМИНКИ ----- */
         .admin-container {
-            background: white;                    /* Белый фон */
+            background: white;                    /* Белый фон для читаемости */
             padding: 25px;                       /* Внутренние отступы */
             border-radius: 8px;                  /* Скруглённые углы */
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);  /* Лёгкая тень */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);  /* Лёгкая тень для объёма */
             margin-top: 20px;                    /* Отступ сверху */
         }
-        
-        /* Блок входа (логин) */
+
+        /* Блок формы входа */
         .admin-login {
-            max-width: 350px;                    /* Максимальная ширина блока */
+            max-width: 350px;                    /* Максимальная ширина, чтобы не растягивалось */
             margin: 50px auto;                   /* Центрирование по горизонтали и отступ сверху */
             padding: 30px;                       /* Внутренние отступы */
             background: white;                   /* Белый фон */
-            border-radius: 8px;                  /* Скруглённые углы */
+            border-radius: 8px;                  /* Скругление */
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);  /* Тень для выделения */
         }
-        
-        /* Группа полей формы (обёртка для label + input) */
+
+        /* Группа полей формы */
         .form-group {
-            margin-bottom: 15px;                 /* Отступ снизу между группами */
+            margin-bottom: 15px;                 /* Отступ между группами полей */
         }
-        
+
         /* Подписи к полям */
         .form-group label {
-            display: block;                      /* Блочный элемент для расположения над полем */
+            display: block;                      /* Располагаем над полем */
             margin-bottom: 5px;                  /* Небольшой отступ от поля */
-            font-weight: 500;                    /* Полужирное начертание */
+            font-weight: 500;                    /* Полужирный шрифт */
         }
-        
-        /* Поля ввода, выпадающие списки и текстовые области */
+
+        /* Поля ввода, селекты и текстовые области */
         .form-group input,
         .form-group select,
         .form-group textarea {
@@ -49,16 +47,16 @@
             padding: 8px 10px;                   /* Внутренние отступы */
             border: 1px solid #ddd;              /* Светло-серая рамка */
             border-radius: 4px;                  /* Лёгкое скругление */
-            font-family: inherit;                /* Наследовать шрифт от родителя */
+            font-family: inherit;                /* Наследуем шрифт от body */
         }
-        
-        /* Таблица со списком товаров */
+
+        /* Таблица для отображения списка товаров */
         .products-table {
             width: 100%;                         /* На всю ширину */
             border-collapse: collapse;           /* Убираем двойные границы */
             margin: 20px 0;                      /* Отступы сверху и снизу */
         }
-        
+
         /* Ячейки таблицы */
         .products-table th,
         .products-table td {
@@ -66,78 +64,65 @@
             text-align: left;                    /* Выравнивание текста влево */
             border-bottom: 1px solid #eee;       /* Разделительная линия снизу */
         }
-        
+
         /* Заголовки таблицы */
         .products-table th {
             background: #f8f9fa;                 /* Светло-серый фон */
         }
-        
-        /* Маленькая кнопка (для действий "Ред." и "Уд.") */
+
+        /* Маленькие кнопки для действий в таблице */
         .btn-small {
-            padding: 4px 8px;                    /* Компактные внутренние отступы */
+            padding: 4px 8px;                    /* Компактные отступы */
             font-size: 12px;                     /* Мелкий шрифт */
             margin-right: 5px;                   /* Отступ справа между кнопками */
         }
-        
-        /* Шапка панели (заголовок + кнопка выхода) */
+
+        /* Шапка панели управления (заголовок и кнопки) */
         .admin-header {
             display: flex;                       /* Flex-контейнер */
             justify-content: space-between;      /* Разносим элементы по краям */
             align-items: center;                 /* Вертикальное выравнивание по центру */
         }
-        
-        /* ===== ТЁМНАЯ ТЕМА ДЛЯ АДМИНКИ ===== */
-        
-        /* Тёмная тема для контейнеров админки */
+
+        /* ----- ТЁМНАЯ ТЕМА ДЛЯ АДМИНКИ ----- */
         body.dark-theme .admin-container,
         body.dark-theme .admin-login {
-            background: #2c2c2c;                 /* Тёмно-серый фон */
-            color: #e0e0e0;                      /* Светло-серый текст */
+            background: #2c2c2c;                 /* Тёмный фон */
+            color: #e0e0e0;                      /* Светлый текст */
         }
-        
-        /* Тёмная тема для полей ввода */
+
         body.dark-theme .form-group input,
         body.dark-theme .form-group select,
         body.dark-theme .form-group textarea {
             background: #444;                    /* Тёмный фон полей */
-            border-color: #555;                  /* Более тёмная рамка */
+            border-color: #555;                  /* Рамка темнее */
             color: white;                        /* Белый текст */
         }
-        
-        /* Тёмная тема для заголовков таблицы */
+
         body.dark-theme .products-table th {
-            background: #333;                    /* Тёмно-серый фон */
-
-            body.dark-theme .modal-content {
-            background: #2c2c2c;
-            color: #e0e0e0;
-        }
-        body.dark-theme #closeModalBtn {
-                color: #aaa;
-        }
-
+            background: #333;                    /* Тёмный фон заголовков */
         }
     </style>
 </head>
-<body>                                           <!-- Начало видимого содержимого страницы -->
+<body>                                           <!-- Видимая часть страницы -->
 
-    <!-- ==================== ШАПКА САЙТА ==================== -->
-    <header>                                     <!-- Секция шапки сайта -->
+    <!-- ==================== ШАПКА САЙТА (общая для всех страниц) ==================== -->
+    <header>                                     <!-- Верхняя часть сайта -->
         <div class="container">                  <!-- Центрирующий контейнер -->
-            <div class="logo">                   <!-- Логотип магазина -->
-                <a href="../index.html">Уют</a>   <!-- Ссылка на главную страницу (на уровень выше) -->
+            <div class="logo">                   <!-- Логотип -->
+                <a href="../index.html">Уют</a>   <!-- Ссылка на главную (на уровень выше) -->
             </div>
             <nav>                                <!-- Навигационное меню -->
-                <ul>                             <!-- Ненумерованный список -->
-                    <li><a href="../index.html">Главная</a></li>      <!-- Пункт "Главная" -->
-                    <li><a href="catalog.html">Каталог</a></li>      <!-- Пункт "Каталог" -->
-                    <li>                                           <!-- Пункт "Корзина" -->
+                <ul>                             <!-- Список пунктов меню -->
+                    <li><a href="../index.html">Главная</a></li>      <!-- Главная страница -->
+                    <li><a href="catalog.html">Каталог</a></li>      <!-- Каталог товаров -->
+                    <li>                                           <!-- Корзина с иконкой -->
                         <a href="cart.html" class="cart-link">     <!-- Ссылка на корзину -->
                             Корзина 
-                            <span class="cart-count">0</span>       <!-- Счётчик товаров в корзине -->
+                            <span class="cart-count">0</span>       <!-- Счётчик товаров (обновляется JS) -->
                         </a>
                     </li>
-                    <li><a href="admin.html">Админ</a></li>
+                    <li><a href="admin.html">Админ</a></li>        <!-- Текущая страница админки -->
                 </ul>
             </nav>
             <!-- Кнопка переключения светлой/тёмной темы -->
@@ -149,25 +134,27 @@
     <main>                                       <!-- Основное содержимое страницы -->
         <div class="container">                  <!-- Центрирующий контейнер -->
 
-            <!-- ---------- БЛОК ВХОДА (ЛОГИН) ---------- -->
-            <div id="loginBlock" class="admin-login">   <!-- Контейнер формы входа, изначально видим -->
+            <!-- ---------- БЛОК ВХОДА (показывается, если не авторизован) ---------- -->
+            <div id="loginBlock" class="admin-login">   <!-- Контейнер формы входа -->
                 <h2>Вход в админ-панель</h2>            <!-- Заголовок -->
                 <div class="form-group">                 <!-- Группа поля "Пароль" -->
-                    <label>Пароль</label>                <!-- Подпись поля -->
-                    <input type="password" id="passwordInput" placeholder="Введите пароль"> <!-- Поле для пароля -->
+                    <label>Пароль</label>                <!-- Подпись -->
+                    <input type="password" id="passwordInput" placeholder="Введите пароль"> <!-- Поле ввода пароля -->
                 </div>
-                <button class="btn" id="loginBtn">Войти</button>   <!-- Кнопка отправки -->
+                <button class="btn" id="loginBtn">Войти</button>   <!-- Кнопка входа -->
+                <!-- Подсказка с паролем (для удобства тестирования) -->
+                <p style="margin-top: 10px; font-size: 13px; color: #888;">Подсказка: admin</p>
             </div>
 
-            <!-- ---------- ПАНЕЛЬ УПРАВЛЕНИЯ (СКРЫТА ПО УМОЛЧАНИЮ) ---------- -->
-            <div id="adminPanel" style="display: none;">   <!-- Панель управления, скрыта до успешного входа -->
-                
-                <!-- Шапка панели: заголовок и кнопка выхода -->
+            <!-- ---------- ПАНЕЛЬ УПРАВЛЕНИЯ (показывается после входа) ---------- -->
+            <div id="adminPanel" style="display: none;">   <!-- Скрыта по умолчанию -->
+
+                <!-- Шапка панели с заголовком и кнопками -->
                 <div class="admin-header">
                     <h1>Управление товарами</h1>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn" id="customersBtn">👥 Покупатели</button>
-                        <button class="btn btn-danger" id="logoutBtn">Выйти</button>
+                    <div style="display: flex; gap: 10px;">   <!-- Контейнер для кнопок справа -->
+                        <button class="btn" id="customersBtn">👥 Покупатели</button> <!-- Переключение на заказы -->
+                        <button class="btn btn-danger" id="logoutBtn">Выйти</button>   <!-- Выход из админки -->
                     </div>
                 </div>
 
@@ -175,16 +162,16 @@
                 <div class="admin-container">              <!-- Контейнер с белым фоном и тенью -->
                     <h2>Добавить / Редактировать товар</h2>
                     <form id="productForm">                <!-- Форма, обрабатывается через JS -->
-                        <!-- Скрытое поле для ID товара (пустое при добавлении, содержит ID при редактировании) -->
+                        <!-- Скрытое поле для хранения ID редактируемого товара -->
                         <input type="hidden" id="productId" value="">
-                        
+
                         <!-- Название товара -->
                         <div class="form-group">
                             <label>Название</label>
-                            <input type="text" id="productName" required>  <!-- required - обязательное поле -->
+                            <input type="text" id="productName" required>  <!-- required – обязательное поле -->
                         </div>
-                        
-                        <!-- Категория (выпадающий список) -->
+
+                        <!-- Категория товара (выпадающий список) -->
                         <div class="form-group">
                             <label>Категория</label>
                             <select id="productCategory" required>
@@ -194,26 +181,27 @@
                                 <option value="storage">Хранение</option>
                             </select>
                         </div>
-                        
-                        <!-- Цена товара -->
+
+                        <!-- Цена товара (в рублях) -->
                         <div class="form-group">
                             <label>Цена (₽)</label>
-                            <input type="number" id="productPrice" min="0" step="100" required>  <!-- Только положительные числа, шаг 100 -->
-                        </div>
-                        
-                        <!-- Имя файла изображения -->
-                        <div class="form-group">
-                            <label>Имя файла изображения</label>
-                            <input type="text" id="productImage" placeholder="" required>
-                            <small style="color: #888;">Введите: /images/...</small>  <!-- Подсказка о формате пути -->
-                        </div>
-                        
-                        <!-- Описание товара -->
-                        <div class="form-group">
-                            <label>Описание</label>
-                            <textarea id="productDescription" rows="3"></textarea>  <!-- Многострочное поле -->
+                            <input type="number" id="productPrice" min="0" step="100" required>  <!-- Только числа, шаг 100 -->
                         </div>
 
+                        <!-- Имя файла изображения (без пути) -->
+                        <div class="form-group">
+                            <label>Имя файла изображения</label>
+                            <input type="text" id="productImage" placeholder="например, sofa.jpg" required>
+                            <small style="color: #888;">Файл должен лежать в папке images/</small>  <!-- Подсказка -->
+                        </div>
+
+                        <!-- Описание товара (многострочное) -->
+                        <div class="form-group">
+                            <label>Описание</label>
+                            <textarea id="productDescription" rows="3"></textarea>
+                        </div>
+
+                        <!-- Чекбокс "Показывать на главной" -->
                         <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
                             <input type="checkbox" id="productFeatured" style="width: auto; margin: 0;">
                             <label for="productFeatured" style="margin: 0;">Показывать на главной</label>
@@ -221,43 +209,45 @@
 
                         <!-- Кнопки управления формой -->
                         <button type="submit" class="btn" id="saveBtn">Сохранить</button>   <!-- Сохранить (добавить/обновить) -->
-                        <button type="button" class="btn" id="cancelBtn" style="background: #95a5a6;">Отмена</button>  <!-- Отмена редактирования -->
+                        <button type="button" class="btn" id="cancelBtn" style="background: #95a5a6;">Отмена</button>  <!-- Сброс формы -->
                     </form>
                 </div>
-                    <!-- Панель покупателей (заказы) -->
-            <div id="customersPanel" style="display: none;" class="admin-container">
-                <h2>📋 Заказы покупателей</h2>
-                <table class="products-table" id="ordersTable">
-                    <thead>
-                        <tr>
-                            <th>ID заказа</th>
-                            <th>Дата</th>
-                            <th>Покупатель</th>
-                            <th>Телефон</th>
-                            <th>Сумма</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ordersTableBody"></tbody>
-                </table>
-                <button class="btn" id="backToProductsBtn" style="margin-top: 20px;">← Вернуться к товарам</button>
-            </div>
+
+                <!-- ---------- ПАНЕЛЬ ПОКУПАТЕЛЕЙ (ЗАКАЗЫ) ---------- -->
+                <div id="customersPanel" style="display: none;" class="admin-container">
+                    <h2>📋 Заказы покупателей</h2>
+                    <table class="products-table" id="ordersTable">
+                        <thead>
+                            <tr>
+                                <th>ID заказа</th>      <!-- Идентификатор заказа -->
+                                <th>Дата</th>            <!-- Дата оформления -->
+                                <th>Покупатель</th>      <!-- Имя покупателя -->
+                                <th>Телефон</th>         <!-- Контактный телефон -->
+                                <th>Сумма</th>           <!-- Общая сумма -->
+                                <th>Действия</th>        <!-- Кнопки просмотра и удаления -->
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">   <!-- Тело таблицы, заполняется через JS -->
+                        </tbody>
+                    </table>
+                    <button class="btn" id="backToProductsBtn" style="margin-top: 20px;">← Вернуться к товарам</button>
+                </div>
 
                 <!-- ---------- ТАБЛИЦА СПИСКА ТОВАРОВ ---------- -->
                 <div class="admin-container">
                     <h2>Список товаров</h2>
                     <table class="products-table" id="productsTable">
-                        <thead>                            <!-- Заголовок таблицы -->
+                        <thead>                            <!-- Заголовки колонок -->
                             <tr>
-                                <th>ID</th>                <!-- Идентификатор -->
-                                <th>Название</th>          <!-- Название товара -->
+                                <th>ID</th>                <!-- ID товара -->
+                                <th>Название</th>          <!-- Название -->
                                 <th>Категория</th>         <!-- Категория -->
                                 <th>Цена</th>              <!-- Цена -->
+                                <th>Главная</th>           <!-- Статус показа на главной -->
                                 <th>Действия</th>          <!-- Кнопки редактирования/удаления -->
-                                <th>Главная</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBody">             <!-- Тело таблицы, заполняется динамически через JS -->
+                        <tbody id="tableBody">             <!-- Тело таблицы, заполняется динамически -->
                         </tbody>
                     </table>
                 </div>
@@ -266,29 +256,32 @@
     </main>
 
     <!-- ==================== ПОДКЛЮЧЕНИЕ СКРИПТОВ ==================== -->
+    <!-- Библиотека Supabase для работы с облачной БД -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Инициализация клиента Supabase с нашими ключами -->
+    <script src="../js/supabase.js"></script>
     <!-- Основные скрипты магазина -->
-    <script src="../js/data.js"></script>        <!-- Данные товаров и функции работы с ними -->
+    <script src="../js/data.js"></script>        <!-- Управление товарами (загрузка, сохранение) -->
     <script src="../js/cart.js"></script>        <!-- Логика корзины -->
-    <script src="../js/theme.js"></script>       <!-- Переключение тёмной темы -->
+    <script src="../js/theme.js"></script>       <!-- Переключение светлой/тёмной темы -->
     <script src="../js/admin.js"></script>       <!-- Логика админ-панели -->
 
-
     <!-- ==================== КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ==================== -->
-    <!-- Фиксированный контейнер в правом верхнем углу для всплывающих сообщений -->
+    <!-- Фиксированный блок для всплывающих сообщений -->
     <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
-    
-    <!-- ==================== СКРИПТ УВЕДОМЛЕНИЙ (ВСТРОЕННЫЙ) ==================== -->
-    <script>
-    (function() {                                          // Самовызывающаяся функция для изоляции
-        const container = document.getElementById('notification-container');  // Получаем контейнер
-        if (!container) return;                            // Если контейнера нет, прекращаем выполнение
 
-        // Глобальная функция для показа уведомления
+    <!-- ==================== СКРИПТ УВЕДОМЛЕНИЙ ==================== -->
+    <script>
+    (function() {                                          // Самовызывающаяся функция для изоляции переменных
+        const container = document.getElementById('notification-container');  // Находим контейнер
+        if (!container) return;                            // Если контейнера нет – выходим
+
+        // Глобальная функция для показа уведомлений
         window.showNotification = function(message, type = 'success', duration = 3000) {
-            const notification = document.createElement('div');   // Создаём div для уведомления
+            const notification = document.createElement('div');   // Создаём элемент уведомления
             notification.className = 'notification ' + type;      // Добавляем классы (notification и тип)
-            
-            // Выбор иконки в зависимости от типа
+
+            // Выбираем иконку в зависимости от типа сообщения
             let icon = '✅';
             if (type === 'error') icon = '❌';
             else if (type === 'warning') icon = '⚠️';
@@ -297,10 +290,10 @@
             // Заполняем HTML уведомления
             notification.innerHTML = `
                 <span class="icon">${icon}</span>                <!-- Иконка -->
-                <span class="message">${message}</span>          <!-- Текст сообщения -->
-                <button class="close-btn">&times;</button>       <!-- Кнопка закрытия (крестик) -->
+                <span class="message">${message}</span>          <!-- Текст -->
+                <button class="close-btn">&times;</button>       <!-- Кнопка закрытия -->
             `;
-            container.appendChild(notification);                  // Добавляем уведомление в контейнер
+            container.appendChild(notification);                  // Добавляем в контейнер
 
             const closeBtn = notification.querySelector('.close-btn');  // Находим кнопку закрытия
             // Функция удаления уведомления с анимацией
@@ -308,28 +301,25 @@
                 notification.style.animation = 'fadeOut 0.2s forwards';  // Запускаем анимацию исчезновения
                 setTimeout(() => notification.remove(), 200);            // Удаляем элемент через 200 мс
             };
-            closeBtn.addEventListener('click', remove);           // По клику на крестик — удаляем
+            closeBtn.addEventListener('click', remove);           // Закрытие по клику на крестик
             if (duration > 0) setTimeout(remove, duration);      // Автоматическое закрытие через duration мс
         };
-        console.log('✅ showNotification готов');                // Сообщение в консоль о готовности
+        console.log('✅ showNotification готов');                // Сообщение в консоль для отладки
     })();
     </script>
 
-<!-- Модальное окно деталей заказа -->
-<div id="orderModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
-    <div class="modal-content" style="background: white; border-radius: 8px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.3);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h3 style="margin: 0;">Детали заказа</h3>
-            <button id="closeModalBtn" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #888;">&times;</button>
-        </div>
-        <div id="modalBody">
-            <!-- Содержимое будет вставлено через JS -->
+    <!-- ==================== МОДАЛЬНОЕ ОКНО ДЛЯ ПРОСМОТРА ДЕТАЛЕЙ ЗАКАЗА ==================== -->
+    <div id="orderModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 8px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0;">Детали заказа</h3>
+                <button id="closeModalBtn" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #888;">&times;</button>
+            </div>
+            <div id="modalBody">
+                <!-- Сюда будет вставлен HTML с информацией о заказе -->
+            </div>
         </div>
     </div>
-</div>
-<!-- Библиотека Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Наш клиент -->
-<script src="../js/supabase.js"></script>
+
 </body>
 </html>

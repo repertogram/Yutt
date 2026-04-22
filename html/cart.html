@@ -1,15 +1,16 @@
 <!DOCTYPE html>                                  <!-- Объявление типа документа HTML5 -->
-<html lang="ru">                                 <!-- Корневой элемент, язык страницы — русский -->
+<html lang="ru">                                 <!-- Корневой элемент, язык страницы – русский -->
 <head>                                           <!-- Метаданные и подключения -->
     <meta charset="UTF-8">                       <!-- Кодировка UTF-8 для корректного отображения кириллицы -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Настройки для адаптивности на мобильных устройствах -->
-            <!-- Ширина по ширине экрана, начальный масштаб 1 -->
+    <!-- Адаптивный вьюпорт: ширина равна ширине устройства, начальный масштаб 1 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Корзина</title>                       <!-- Заголовок вкладки браузера -->
-    <link rel="stylesheet" href="../css/style.css">  <!-- Подключение общих стилей магазина (путь на уровень выше) -->
+    <!-- Подключаем основные стили магазина (находимся в папке html, поэтому ../css/style.css) -->
+    <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>                                           <!-- Начало видимого содержимого страницы -->
+<body>                                           <!-- Видимое содержимое страницы -->
 
-    <!-- ==================== ШАПКА САЙТА ==================== -->
+    <!-- ==================== ШАПКА САЙТА (общая для всех страниц) ==================== -->
     <header>                                     <!-- Верхняя часть сайта -->
         <div class="container">                  <!-- Центрирующий контейнер с ограничением ширины -->
             <div class="logo">                   <!-- Блок логотипа -->
@@ -17,15 +18,15 @@
             </div>
             <nav>                                <!-- Навигационное меню -->
                 <ul>                             <!-- Ненумерованный список пунктов меню -->
-                    <li><a href="../index.html">Главная</a></li>      <!-- Ссылка на главную -->
-                    <li><a href="catalog.html">Каталог</a></li>      <!-- Ссылка на каталог (в этой же папке) -->
-                    <li>                                           <!-- Пункт "Корзина" -->
-                        <a href="cart.html" class="cart-link">     <!-- Ссылка на текущую страницу корзины -->
+                    <li><a href="../index.html">Главная</a></li>      <!-- Ссылка на главную страницу -->
+                    <li><a href="catalog.html">Каталог</a></li>      <!-- Ссылка на каталог (лежит в этой же папке) -->
+                    <li>                                           <!-- Пункт "Корзина" (текущая страница) -->
+                        <a href="cart.html" class="cart-link">     <!-- Ссылка на корзину -->
                             Корзина 
-                            <span class="cart-count">0</span>       <!-- Счётчик товаров в корзине (обновляется через JS) -->
+                            <span class="cart-count">0</span>       <!-- Счётчик товаров в корзине (обновляется JS) -->
                         </a>
                     </li>
-                    <li><a href="admin.html">Админ</a></li>
+                    <li><a href="admin.html">Админ</a></li>        <!-- Ссылка на админ-панель -->
                 </ul>
             </nav>
             <!-- Кнопка переключения темы (светлая / тёмная) -->
@@ -37,149 +38,177 @@
     <main>                                       <!-- Основная часть страницы -->
         <div class="container">                  <!-- Центрирующий контейнер -->
             <h1>Корзина</h1>                     <!-- Заголовок страницы -->
-            <div id="cart-content"></div>        <!-- Контейнер, куда будет отрисована корзина через JavaScript -->
+            <div id="cart-content"></div>        <!-- Контейнер, куда JavaScript отрисует содержимое корзины -->
         </div>
     </main>
 
     <!-- ==================== ПОДКЛЮЧЕНИЕ СКРИПТОВ ==================== -->
-    <!-- Файлы с данными и основной логикой магазина -->
-    <script src="../js/data.js"></script>        <!-- Массив товаров и вспомогательные функции (products, getImagePath и т.д.) -->
-    <script src="../js/cart.js"></script>        <!-- Функции работы с корзиной (getCart, addToCart, changeQuantity, getCartTotal и др.) -->
-    
-    <!-- ==================== СКРИПТ ОТРИСОВКИ КОРЗИНЫ (ВСТРОЕННЫЙ) ==================== -->
+    <!-- Библиотека Supabase для работы с облачной базой данных -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Наш файл с инициализацией клиента Supabase (URL и ключ) -->
+    <script src="../js/supabase.js"></script>
+    <!-- Основные скрипты магазина -->
+    <script src="../js/data.js"></script>        <!-- Управление товарами (загрузка из БД, массив products и т.д.) -->
+    <script src="../js/cart.js"></script>        <!-- Логика корзины (getCart, addToCart, changeQuantity, getCartTotal и др.) -->
+
+    <!-- ==================== СКРИПТ ОТРИСОВКИ КОРЗИНЫ ==================== -->
     <script>
         /**
-         * Функция отрисовки содержимого корзины.
-         * Получает корзину из localStorage, сопоставляет с товарами и генерирует HTML-таблицу.
+         * Функция renderCart() – отрисовывает содержимое корзины на странице.
+         * Она получает данные о товарах в корзине из localStorage,
+         * сопоставляет их с глобальным массивом products (загруженным из БД)
+         * и генерирует HTML-таблицу с товарами, количеством и общей суммой.
          */
         function renderCart() {
-            const container = document.getElementById('cart-content');  // Получаем элемент-контейнер
-            const cart = getCart();                    // Получаем текущую корзину (массив {id, quantity})
-            
-            // Если корзина пуста — показываем сообщение и прекращаем выполнение
+            // Получаем DOM-элемент, в который будем вставлять таблицу корзины
+            const container = document.getElementById('cart-content');
+            // Получаем текущую корзину из localStorage (массив объектов {id, quantity})
+            const cart = getCart();
+
+            // Если корзина пуста – выводим сообщение и завершаем функцию
             if (cart.length === 0) {
                 container.innerHTML = '<p>Ваша корзина пуста.</p>';
                 return;
             }
 
-            // Начинаем формировать HTML-код таблицы
+            // Начинаем формировать HTML-строку с открывающими тегами таблицы
             let html = `
                 <table class="cart-table">
                     <thead>
                         <tr>
-                            <th>Товар</th>            <!-- Колонка с названием товара -->
+                            <th>Товар</th>            <!-- Название товара -->
                             <th>Цена</th>             <!-- Цена за единицу -->
-                            <th>Количество</th>       <!-- Количество и кнопки изменения -->
-                            <th>Сумма</th>            <!-- Общая стоимость позиции -->
-                            <th></th>                 <!-- Кнопка удаления -->
+                            <th>Количество</th>       <!-- Количество и кнопки +/- -->
+                            <th>Сумма</th>            <!-- Стоимость позиции -->
+                            <th></th>                 <!-- Колонка для кнопки удаления -->
                         </tr>
                     </thead>
                     <tbody>
             `;
 
-            // Перебираем все позиции в корзине
+            // Перебираем все элементы корзины
             cart.forEach(item => {
-                const product = products.find(p => p.id === item.id);  // Находим товар по ID
-                if (!product) return;                                  // Пропускаем, если товар не найден (на всякий случай)
-                const itemTotal = product.price * item.quantity;       // Вычисляем стоимость позиции
-                
-                // Добавляем строку таблицы для текущего товара
+                // Ищем товар в глобальном массиве products по id
+                const product = products.find(p => p.id === item.id);
+                // Если товар не найден (например, был удалён из каталога), пропускаем его
+                if (!product) return;
+                // Вычисляем стоимость позиции (цена * количество)
+                const itemTotal = product.price * item.quantity;
+
+                // Добавляем строку таблицы для данного товара
                 html += `
                     <tr>
                         <td>
-                            <!-- Ссылка на страницу товара с классом для стилизации подчёркивания -->
+                            <!-- Ссылка на страницу товара, с классом для красивого подчёркивания -->
                             <a href="product.html?id=${product.id}" class="cart-product-link">${product.name}</a>
                         </td>
-                        <td>${product.price.toLocaleString()} ₽</td>   <!-- Форматированная цена -->
+                        <td>${product.price.toLocaleString()} ₽</td>   <!-- Цена с разделителями тысяч -->
                         <td>
                             <div class="quantity-control">              <!-- Блок управления количеством -->
-                                <button onclick="changeQuantity(${product.id}, -1)">-</button>  <!-- Уменьшить количество -->
+                                <button onclick="changeQuantity(${product.id}, -1)">-</button>  <!-- Уменьшить -->
                                 <span>${item.quantity}</span>           <!-- Текущее количество -->
-                                <button onclick="changeQuantity(${product.id}, 1)">+</button>   <!-- Увеличить количество -->
+                                <button onclick="changeQuantity(${product.id}, 1)">+</button>   <!-- Увеличить -->
                             </div>
                         </td>
-                        <td>${itemTotal.toLocaleString()} ₽</td>       <!-- Стоимость позиции с разделителями -->
+                        <td>${itemTotal.toLocaleString()} ₽</td>       <!-- Стоимость позиции -->
                         <td>
-                            <button class="btn btn-danger" onclick="removeFromCart(${product.id})">Удалить</button>  <!-- Кнопка удаления -->
+                            <!-- Кнопка удаления товара из корзины -->
+                            <button class="btn btn-danger" onclick="removeFromCart(${product.id})">Удалить</button>
                         </td>
                     </tr>
                 `;
             });
 
-            const total = getCartTotal();                               // Получаем общую сумму корзины
-            // Добавляем закрывающие теги таблицы и блок с итоговой суммой, а также кнопку оформления заказа
+            // Получаем общую сумму корзины с помощью функции getCartTotal
+            const total = getCartTotal();
+
+            // Закрываем таблицу, добавляем блок с итоговой суммой и кнопку оформления заказа
             html += `
                     </tbody>
                 </table>
                 <div class="cart-total">
                     Итого: ${total.toLocaleString()} ₽
                 </div>
-                <a href="checkout.html" class="btn">Оформить заказ</a>  <!-- Ссылка на страницу оформления -->
+                <a href="checkout.html" class="btn">Оформить заказ</a>
             `;
 
-            container.innerHTML = html;                                 // Вставляем сгенерированный HTML в контейнер
+            // Вставляем сгенерированный HTML в контейнер на странице
+            container.innerHTML = html;
         }
 
-        // Делаем функции changeQuantity и removeFromCart глобально доступными для вызова из onclick
+        // Делаем функции changeQuantity и removeFromCart глобально доступными,
+        // чтобы они могли вызываться из атрибутов onclick в кнопках
         window.changeQuantity = changeQuantity;
         window.removeFromCart = removeFromCart;
 
-        // После полной загрузки DOM выполняем отрисовку корзины и обновление счётчика в шапке
-document.addEventListener('DOMContentLoaded', async () => {
-    // Загружаем товары из Supabase перед отрисовкой корзины
-    await loadProducts();
-    renderCart();
-    updateCartCount();
-});
+        // После полной загрузки DOM-дерева выполняем начальную загрузку данных и отрисовку
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Сначала загружаем товары из облачной базы данных Supabase
+            // (функция loadProducts определена в data.js)
+            await loadProducts();
+            // Затем отрисовываем корзину (теперь массив products заполнен)
+            renderCart();
+            // Обновляем счётчик товаров в шапке (рядом со словом "Корзина")
+            updateCartCount();
+        });
     </script>
 
-    <!-- Скрипт переключения тёмной темы -->
+    <!-- Скрипт переключения тёмной темы (theme.js) -->
     <script src="../js/theme.js"></script>
 
     <!-- ==================== КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ==================== -->
     <!-- Фиксированный блок в правом верхнем углу для всплывающих сообщений -->
     <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
-    
+
     <!-- ==================== СКРИПТ УВЕДОМЛЕНИЙ (ВСТРОЕННЫЙ) ==================== -->
     <script>
-    (function() {                                          // Самовызывающаяся функция для создания локальной области видимости
-        const container = document.getElementById('notification-container');  // Находим контейнер
-        if (!container) return;                            // Если контейнера нет — выходим
+        // Самовызывающаяся функция – изолирует переменные от глобальной области
+        (function() {
+            // Находим контейнер для уведомлений по id
+            const container = document.getElementById('notification-container');
+            // Если контейнера нет на странице – выходим
+            if (!container) return;
 
-        // Глобальная функция показа уведомлений (доступна из любого места)
-        window.showNotification = function(message, type = 'success', duration = 3000) {
-            const notification = document.createElement('div');   // Создаём div для уведомления
-            notification.className = 'notification ' + type;      // Добавляем классы (notification и тип: success/error/warning/info)
-            
-            // Выбираем иконку в зависимости от типа уведомления
-            let icon = '✅';
-            if (type === 'error') icon = '❌';
-            else if (type === 'warning') icon = '⚠️';
-            else if (type === 'info') icon = 'ℹ️';
+            // Глобальная функция showNotification – будет доступна из любого места
+            window.showNotification = function(message, type = 'success', duration = 3000) {
+                // Создаём div-элемент уведомления
+                const notification = document.createElement('div');
+                // Добавляем классы: 'notification' и тип (success/error/warning/info)
+                notification.className = 'notification ' + type;
 
-            // Заполняем внутреннюю структуру уведомления
-            notification.innerHTML = `
-                <span class="icon">${icon}</span>                <!-- Иконка -->
-                <span class="message">${message}</span>          <!-- Текст сообщения -->
-                <button class="close-btn">&times;</button>       <!-- Кнопка закрытия (крестик) -->
-            `;
-            container.appendChild(notification);                  // Добавляем уведомление в контейнер
+                // Выбираем иконку в зависимости от типа сообщения
+                let icon = '✅';
+                if (type === 'error') icon = '❌';
+                else if (type === 'warning') icon = '⚠️';
+                else if (type === 'info') icon = 'ℹ️';
 
-            const closeBtn = notification.querySelector('.close-btn');  // Находим кнопку закрытия
-            // Функция удаления уведомления с анимацией
-            const remove = () => {
-                notification.style.animation = 'fadeOut 0.2s forwards';  // Запускаем CSS-анимацию исчезновения
-                setTimeout(() => notification.remove(), 200);            // Удаляем элемент из DOM после завершения анимации
+                // Вставляем HTML-содержимое уведомления
+                notification.innerHTML = `
+                    <span class="icon">${icon}</span>                <!-- Иконка -->
+                    <span class="message">${message}</span>          <!-- Текст сообщения -->
+                    <button class="close-btn">&times;</button>       <!-- Кнопка закрытия (крестик) -->
+                `;
+                // Добавляем уведомление в контейнер на странице
+                container.appendChild(notification);
+
+                // Находим кнопку закрытия внутри созданного уведомления
+                const closeBtn = notification.querySelector('.close-btn');
+                // Функция удаления уведомления с анимацией
+                const remove = () => {
+                    // Запускаем CSS-анимацию исчезновения
+                    notification.style.animation = 'fadeOut 0.2s forwards';
+                    // Через 200 мс (после окончания анимации) удаляем элемент из DOM
+                    setTimeout(() => notification.remove(), 200);
+                };
+                // Закрытие при клике на крестик
+                closeBtn.addEventListener('click', remove);
+                // Автоматическое закрытие через duration миллисекунд (если duration > 0)
+                if (duration > 0) setTimeout(remove, duration);
             };
-            closeBtn.addEventListener('click', remove);           // Закрытие по клику на крестик
-            if (duration > 0) setTimeout(remove, duration);      // Автоматическое закрытие через заданное время (если duration > 0)
-        };
-        console.log('✅ showNotification готов');                // Отладочное сообщение в консоль
-    })();
+            // Отладочное сообщение в консоль, чтобы убедиться, что скрипт загрузился
+            console.log('✅ showNotification готов');
+        })();
     </script>
-<!-- Библиотека Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Наш клиент -->
-<script src="../js/supabase.js"></script>
+
 </body>
 </html>

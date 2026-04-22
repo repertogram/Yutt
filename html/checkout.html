@@ -2,10 +2,10 @@
 <html lang="ru">                                 <!-- Корневой элемент, язык страницы — русский -->
 <head>                                           <!-- Метаданные и подключения -->
     <meta charset="UTF-8">                       <!-- Кодировка UTF-8 для корректного отображения кириллицы -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Настройки области просмотра для адаптивности -->
-            <!-- Ширина по ширине экрана, масштаб 1 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Адаптивный вьюпорт -->
     <title>Оформление заказа</title>            <!-- Заголовок вкладки браузера -->
-    <link rel="stylesheet" href="../css/style.css">  <!-- Подключение общих стилей магазина (путь на уровень выше) -->
+    <!-- Подключаем основные стили магазина (находимся в папке html, поэтому ../css/style.css) -->
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>                                           <!-- Видимое содержимое страницы -->
 
@@ -24,13 +24,13 @@
                             Корзина 
                             <span class="cart-count">0</span>       <!-- Счётчик товаров в корзине (обновляется JS) -->
                         </a>
-                        <li><a href="admin.html">Админ</a></li>
                     </li>
+                    <li><a href="admin.html">Админ</a></li>        <!-- Пункт "Админ" -->
                 </ul>
             </nav>
             <!-- Кнопка переключения светлой/тёмной темы -->
             <button class="theme-toggle" id="themeToggle">🌙 Тёмная</button>
-            <!-- Скрипт переключения темы подключён сразу в шапке (можно и в конце, но здесь для наглядности) -->
+            <!-- Скрипт переключения темы (можно было и в конце, но оставим здесь) -->
             <script src="../js/theme.js"></script>
         </div>
     </header>
@@ -39,188 +39,219 @@
     <main>                                       <!-- Основное содержимое страницы -->
         <div class="container">                  <!-- Центрирующий контейнер -->
             <h1>Оформление заказа</h1>           <!-- Заголовок страницы -->
-            
+
             <!-- ---------- ФОРМА ОФОРМЛЕНИЯ ЗАКАЗА ---------- -->
             <form id="checkout-form" style="max-width: 500px;">   <!-- Форма, ограниченная по ширине для удобства чтения -->
-                
+
                 <!-- Поле "Имя" -->
                 <div style="margin-bottom: 15px;">
                     <label>Имя: <input type="text" name="name" required style="width: 100%; padding: 8px;"></label>
                 </div>
-                
-                <!-- Поле "Телефон" -->
+
+                <!-- Поле "Телефон" с маской ввода -->
                 <div style="margin-bottom: 15px;">
                     <label>Телефон: <input type="tel" name="phone" required style="width: 100%; padding: 8px;"></label>
                 </div>
-                
+
                 <!-- Поле "Адрес доставки" (многострочное) -->
                 <div style="margin-bottom: 15px;">
                     <label>Адрес доставки: <textarea name="address" required style="width: 100%; padding: 8px;"></textarea></label>
                 </div>
-                
+
                 <!-- Кнопка отправки формы -->
                 <button type="submit" class="btn" style="font-size: 16px;">Подтвердить заказ</button>
             </form>
-            
+
             <!-- Контейнер для сообщения о успешном оформлении заказа -->
             <div id="order-message" style="margin-top: 20px;"></div>
         </div>
     </main>
 
     <!-- ==================== ПОДКЛЮЧЕНИЕ СКРИПТОВ ==================== -->
-    <script src="../js/data.js"></script>        <!-- Данные товаров (для возможных будущих расширений) -->
-    <script src="../js/cart.js"></script>        <!-- Логика корзины (функции getCart, updateCartCount и др.) -->
-    
+    <!-- Библиотека Supabase для работы с облачной базой данных -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Наш клиент с URL и ключом Supabase -->
+    <script src="../js/supabase.js"></script>
+    <!-- Основные скрипты магазина -->
+    <script src="../js/data.js"></script>        <!-- Управление товарами (загрузка из БД, массив products) -->
+    <script src="../js/cart.js"></script>        <!-- Логика корзины (getCart, getCartTotal, updateCartCount) -->
 
-<script>
-    // ==================== МАСКА ТЕЛЕФОНА + СОХРАНЕНИЕ ЗАКАЗА В SUPABASE ====================
+    <!-- ==================== СКРИПТ МАСКИ ТЕЛЕФОНА И ОТПРАВКИ ЗАКАЗА ==================== -->
+    <script>
+        // ---------- МАСКА ВВОДА ТЕЛЕФОНА ----------
+        // Находим поле ввода телефона по атрибуту name="phone"
+        const phoneInput = document.querySelector('input[name="phone"]');
+        // Устанавливаем начальное значение маски
+        phoneInput.value = '+7 (___) ___-__-__';
 
-    const phoneInput = document.querySelector('input[name="phone"]');
-    phoneInput.value = '+7 (___) ___-__-__';
-
-    function applyMask(value) {
-        let digits = value.replace(/\D/g, '');
-        if (digits.startsWith('7') || digits.startsWith('8')) digits = digits.substring(1);
-        digits = digits.substring(0, 10);
-        let formatted = '+7';
-        if (digits.length > 0) formatted += ' (' + digits.substring(0, 3);
-        if (digits.length >= 4) formatted += ') ' + digits.substring(3, 6);
-        if (digits.length >= 7) formatted += '-' + digits.substring(6, 8);
-        if (digits.length >= 9) formatted += '-' + digits.substring(8, 10);
-        const total = digits.length;
-        if (total < 3) formatted += '_'.repeat(3 - total);
-        if (total < 6) formatted += '_'.repeat(Math.min(3, 6 - Math.max(3, total)));
-        if (total < 8) formatted += '_'.repeat(Math.min(2, 8 - Math.max(6, total)));
-        if (total < 10) formatted += '_'.repeat(Math.min(2, 10 - Math.max(8, total)));
-        return formatted;
-    }
-
-    phoneInput.addEventListener('focus', () => { if (phoneInput.value === '+7 (___) ___-__-__') phoneInput.select(); });
-    phoneInput.addEventListener('input', function() {
-        const cursorPos = this.selectionStart;
-        const masked = applyMask(this.value);
-        this.value = masked;
-        this.setSelectionRange(cursorPos, cursorPos);
-    });
-    phoneInput.addEventListener('blur', function() {
-        if (this.value.replace(/\D/g, '').length <= 1) this.value = '+7 (___) ___-__-__';
-    });
-
-    // Обработчик отправки формы
-    document.getElementById('checkout-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        // Убедимся, что товары загружены из Supabase
-        if (!products || products.length === 0) {
-            await loadProducts();
+        /**
+         * Функция applyMask(value) – применяет маску к переданному значению.
+         * Оставляет только цифры, форматирует как +7 (XXX) XXX-XX-XX.
+         */
+        function applyMask(value) {
+            // Убираем все нецифровые символы
+            let digits = value.replace(/\D/g, '');
+            // Если номер начинается с 7 или 8, отрезаем первую цифру (она заменится на +7)
+            if (digits.startsWith('7') || digits.startsWith('8')) digits = digits.substring(1);
+            // Оставляем только первые 10 цифр (остальное отбрасываем)
+            digits = digits.substring(0, 10);
+            // Начинаем формировать отформатированную строку с +7
+            let formatted = '+7';
+            if (digits.length > 0) formatted += ' (' + digits.substring(0, 3);
+            if (digits.length >= 4) formatted += ') ' + digits.substring(3, 6);
+            if (digits.length >= 7) formatted += '-' + digits.substring(6, 8);
+            if (digits.length >= 9) formatted += '-' + digits.substring(8, 10);
+            // Добавляем недостающие подчёркивания для заполнения маски
+            const total = digits.length;
+            if (total < 3) formatted += '_'.repeat(3 - total);
+            if (total < 6) formatted += '_'.repeat(Math.min(3, 6 - Math.max(3, total)));
+            if (total < 8) formatted += '_'.repeat(Math.min(2, 8 - Math.max(6, total)));
+            if (total < 10) formatted += '_'.repeat(Math.min(2, 10 - Math.max(8, total)));
+            return formatted;
         }
 
-        const name = document.querySelector('input[name="name"]').value.trim();
-        const address = document.querySelector('textarea[name="address"]').value.trim();
-        let digits = phoneInput.value.replace(/\D/g, '');
-        if (digits.length > 1 && (digits.startsWith('7') || digits.startsWith('8'))) digits = digits.substring(1);
-        if (digits.length !== 10) return showNotification('Введите полный номер (10 цифр)', 'error');
-        const finalPhone = '+7' + digits;
-
-        const cart = getCart();
-        if (!cart.length) return showNotification('Корзина пуста', 'error');
-
-        // Формируем позиции заказа, сохраняя название и цену на момент оформления
-        const orderItems = cart.map(item => {
-            const product = products.find(p => p.id === item.id);
-            return {
-                product_id: item.id,
-                product_name: product ? product.name : 'Товар удалён',
-                price: product ? product.price : 0,
-                quantity: item.quantity
-            };
+        // При фокусе, если поле содержит только маску, выделяем всё для удобства замены
+        phoneInput.addEventListener('focus', () => {
+            if (phoneInput.value === '+7 (___) ___-__-__') phoneInput.select();
         });
 
-        const total = getCartTotal();
-        const orderId = Date.now();
-        const orderDate = new Date().toLocaleString('ru-RU');
+        // При вводе символа – применяем маску и сохраняем позицию курсора
+        phoneInput.addEventListener('input', function() {
+            const cursorPos = this.selectionStart;          // запоминаем позицию курсора
+            const masked = applyMask(this.value);           // получаем отформатированное значение
+            this.value = masked;                            // подставляем в поле
+            this.setSelectionRange(cursorPos, cursorPos);   // возвращаем курсор на место
+        });
 
-        // Сохраняем заказ в Supabase
-        const { error: orderError } = await window.supabaseClient
-            .from('orders')
-            .insert([{
-                id: orderId,
-                date: orderDate,
-                customer_name: name,
-                phone: finalPhone,
-                address: address,
-                total: total
-            }]);
+        // При потере фокуса, если ничего не введено – возвращаем маску
+        phoneInput.addEventListener('blur', function() {
+            if (this.value.replace(/\D/g, '').length <= 1) this.value = '+7 (___) ___-__-__';
+        });
 
-        if (orderError) {
-            console.error(orderError);
-            return showNotification('Ошибка оформления заказа', 'error');
-        }
+        // ---------- ОТПРАВКА ЗАКАЗА В SUPABASE ----------
+        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+            e.preventDefault();   // отменяем стандартную отправку формы (перезагрузку страницы)
 
-        // Сохраняем позиции заказа
-        const itemsToInsert = orderItems.map(it => ({ ...it, order_id: orderId }));
-        await window.supabaseClient.from('order_items').insert(itemsToInsert);
+            // Если массив товаров ещё не загружен (например, страница открыта напрямую), загружаем из БД
+            if (!products || products.length === 0) {
+                await loadProducts();
+            }
 
-        // Очищаем корзину
-        localStorage.removeItem('cart');
-        updateCartCount();
+            // Получаем и очищаем данные из полей формы
+            const name = document.querySelector('input[name="name"]').value.trim();
+            const address = document.querySelector('textarea[name="address"]').value.trim();
+            let digits = phoneInput.value.replace(/\D/g, '');      // только цифры
+            if (digits.length > 1 && (digits.startsWith('7') || digits.startsWith('8'))) {
+                digits = digits.substring(1);                      // убираем первую 7 или 8
+            }
+            // Проверяем, что введено ровно 10 цифр
+            if (digits.length !== 10) {
+                return showNotification('Введите полный номер (10 цифр)', 'error');
+            }
+            const finalPhone = '+7' + digits;                      // итоговый номер для БД
 
-        // Сообщение об успехе
-        document.getElementById('order-message').innerHTML = `
-            <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px;">
-                Спасибо за заказ! Мы свяжемся с вами по номеру ${finalPhone}.
-            </div>
-        `;
-        e.target.reset();
-        phoneInput.value = '+7 (___) ___-__-__';
-        showNotification('Заказ оформлен!', 'success');
-    });
-</script>
+            // Получаем содержимое корзины
+            const cart = getCart();
+            if (!cart.length) {
+                return showNotification('Корзина пуста', 'error');
+            }
+
+            // Формируем массив позиций заказа с названиями и ценами на момент оформления
+            const orderItems = cart.map(item => {
+                const product = products.find(p => p.id === item.id);
+                return {
+                    product_id: item.id,
+                    product_name: product ? product.name : 'Товар удалён',
+                    price: product ? product.price : 0,
+                    quantity: item.quantity
+                };
+            });
+
+            // Общая сумма заказа
+            const total = getCartTotal();
+            // Генерируем уникальный ID заказа (на основе времени)
+            const orderId = Date.now();
+            // Формируем читаемую дату
+            const orderDate = new Date().toLocaleString('ru-RU');
+
+            // Сохраняем основную информацию о заказе в таблицу orders
+            const { error: orderError } = await window.supabaseClient
+                .from('orders')
+                .insert([{
+                    id: orderId,
+                    date: orderDate,
+                    customer_name: name,
+                    phone: finalPhone,
+                    address: address,
+                    total: total
+                }]);
+
+            // Если произошла ошибка при сохранении – выводим уведомление и прерываем
+            if (orderError) {
+                console.error(orderError);
+                return showNotification('Ошибка оформления заказа', 'error');
+            }
+
+            // Сохраняем позиции заказа в таблицу order_items
+            const itemsToInsert = orderItems.map(it => ({ ...it, order_id: orderId }));
+            await window.supabaseClient.from('order_items').insert(itemsToInsert);
+
+            // Очищаем корзину в localStorage
+            localStorage.removeItem('cart');
+            // Обновляем счётчик в шапке (станет 0)
+            updateCartCount();
+
+            // Показываем сообщение об успешном оформлении
+            document.getElementById('order-message').innerHTML = `
+                <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px;">
+                    Спасибо за заказ! Мы свяжемся с вами по номеру ${finalPhone}.
+                </div>
+            `;
+            // Сбрасываем поля формы
+            e.target.reset();
+            // Восстанавливаем маску в поле телефона
+            phoneInput.value = '+7 (___) ___-__-__';
+            // Показываем уведомление об успехе
+            showNotification('Заказ оформлен!', 'success');
+        });
+    </script>
 
     <!-- ==================== КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ==================== -->
-    <!-- Фиксированный блок в правом верхнем углу для показа всплывающих сообщений -->
     <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
-    
+
     <!-- ==================== СКРИПТ УВЕДОМЛЕНИЙ (ВСТРОЕННЫЙ) ==================== -->
     <script>
-    (function() {                                          // Самовызывающаяся функция для изоляции
-        const container = document.getElementById('notification-container');  // Находим контейнер
-        if (!container) return;                            // Если контейнера нет — выходим
+        (function() {
+            const container = document.getElementById('notification-container');
+            if (!container) return;
 
-        // Глобальная функция показа уведомлений
-        window.showNotification = function(message, type = 'success', duration = 3000) {
-            const notification = document.createElement('div');   // Создаём элемент уведомления
-            notification.className = 'notification ' + type;      // Добавляем классы (notification и тип: success/error/warning/info)
-            
-            // Выбор иконки в зависимости от типа
-            let icon = '✅';
-            if (type === 'error') icon = '❌';
-            else if (type === 'warning') icon = '⚠️';
-            else if (type === 'info') icon = 'ℹ️';
+            window.showNotification = function(message, type = 'success', duration = 3000) {
+                const notification = document.createElement('div');
+                notification.className = 'notification ' + type;
 
-            // Внутренняя структура уведомления
-            notification.innerHTML = `
-                <span class="icon">${icon}</span>                <!-- Иконка -->
-                <span class="message">${message}</span>          <!-- Текст сообщения -->
-                <button class="close-btn">&times;</button>       <!-- Кнопка закрытия (крестик) -->
-            `;
-            container.appendChild(notification);                  // Добавляем в контейнер
+                let icon = '✅';
+                if (type === 'error') icon = '❌';
+                else if (type === 'warning') icon = '⚠️';
+                else if (type === 'info') icon = 'ℹ️';
 
-            const closeBtn = notification.querySelector('.close-btn');  // Находим кнопку закрытия
-            // Функция удаления уведомления с анимацией
-            const remove = () => {
-                notification.style.animation = 'fadeOut 0.2s forwards';  // Запускаем CSS-анимацию исчезновения
-                setTimeout(() => notification.remove(), 200);            // Удаляем элемент после завершения анимации
+                notification.innerHTML = `
+                    <span class="icon">${icon}</span>
+                    <span class="message">${message}</span>
+                    <button class="close-btn">&times;</button>
+                `;
+                container.appendChild(notification);
+
+                const closeBtn = notification.querySelector('.close-btn');
+                const remove = () => {
+                    notification.style.animation = 'fadeOut 0.2s forwards';
+                    setTimeout(() => notification.remove(), 200);
+                };
+                closeBtn.addEventListener('click', remove);
+                if (duration > 0) setTimeout(remove, duration);
             };
-            closeBtn.addEventListener('click', remove);           // Закрытие по клику на крестик
-            if (duration > 0) setTimeout(remove, duration);      // Автоматическое закрытие через duration мс
-        };
-        console.log('✅ showNotification готов');                // Отладочное сообщение
-    })();
+            console.log('✅ showNotification готов');
+        })();
     </script>
-<!-- Библиотека Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Наш клиент -->
-<script src="../js/supabase.js"></script>
+
 </body>
 </html>

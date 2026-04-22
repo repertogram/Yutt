@@ -1,108 +1,132 @@
 // ==================== АДМИН-ПАНЕЛЬ (SUPABASE) ====================
-const ADMIN_PASSWORD = 'admin';
+// Этот скрипт управляет авторизацией, товарами и заказами в админке.
+// Все операции с данными идут через Supabase (облачную БД).
 
-// DOM-элементы
-const loginBlock = document.getElementById('loginBlock');
-const adminPanel = document.getElementById('adminPanel');
-const passwordInput = document.getElementById('passwordInput');
-const loginBtn = document.getElementById('loginBtn');
-const logoutBtn = document.getElementById('logoutBtn');
-const productForm = document.getElementById('productForm');
-const productIdInput = document.getElementById('productId');
-const productNameInput = document.getElementById('productName');
-const productCategoryInput = document.getElementById('productCategory');
-const productPriceInput = document.getElementById('productPrice');
-const productImageInput = document.getElementById('productImage');
-const productDescriptionInput = document.getElementById('productDescription');
-const productFeaturedInput = document.getElementById('productFeatured');
-const saveBtn = document.getElementById('saveBtn');
-const cancelBtn = document.getElementById('cancelBtn');
-const tableBody = document.getElementById('tableBody');
-const customersBtn = document.getElementById('customersBtn');
-const customersPanel = document.getElementById('customersPanel');
-const backToProductsBtn = document.getElementById('backToProductsBtn');
-const ordersTableBody = document.getElementById('ordersTableBody');
+const ADMIN_PASSWORD = 'admin';   // Пароль для входа в админку (можно сменить)
 
-// Модальное окно
+// ---------- ПОЛУЧАЕМ ССЫЛКИ НА DOM-ЭЛЕМЕНТЫ (чтобы работать с HTML) ----------
+const loginBlock = document.getElementById('loginBlock');                 // Блок с формой входа
+const adminPanel = document.getElementById('adminPanel');                 // Основная панель управления (скрыта до входа)
+const passwordInput = document.getElementById('passwordInput');           // Поле ввода пароля
+const loginBtn = document.getElementById('loginBtn');                     // Кнопка "Войти"
+const logoutBtn = document.getElementById('logoutBtn');                   // Кнопка "Выйти"
+const productForm = document.getElementById('productForm');               // Форма добавления/редактирования товара
+const productIdInput = document.getElementById('productId');              // Скрытое поле с ID (пустое при добавлении)
+const productNameInput = document.getElementById('productName');          // Поле "Название"
+const productCategoryInput = document.getElementById('productCategory');  // Выпадающий список категорий
+const productPriceInput = document.getElementById('productPrice');        // Поле "Цена"
+const productImageInput = document.getElementById('productImage');        // Поле "Имя файла изображения"
+const productDescriptionInput = document.getElementById('productDescription'); // Поле "Описание"
+const productFeaturedInput = document.getElementById('productFeatured');  // Чекбокс "Показывать на главной"
+const saveBtn = document.getElementById('saveBtn');                       // Кнопка "Сохранить"
+const cancelBtn = document.getElementById('cancelBtn');                   // Кнопка "Отмена"
+const tableBody = document.getElementById('tableBody');                   // Тело таблицы со списком товаров
+const customersBtn = document.getElementById('customersBtn');             // Кнопка "Покупатели"
+const customersPanel = document.getElementById('customersPanel');         // Панель с заказами
+const backToProductsBtn = document.getElementById('backToProductsBtn');   // Кнопка возврата к товарам
+const ordersTableBody = document.getElementById('ordersTableBody');       // Тело таблицы заказов
+
+// Переменные для модального окна просмотра заказа и подтверждения удаления
 let orderModal, closeModalBtn, modalBody;
 let confirmModal, confirmModalMessage, confirmModalYes, confirmModalNo;
-let pendingDeleteId = null;
+let pendingDeleteId = null;   // ID заказа, ожидающего удаления (сейчас не используется)
 
 // ==================== АВТОРИЗАЦИЯ ====================
+/**
+ * Проверяет, авторизован ли пользователь (по флагу в sessionStorage).
+ * Если да — показывает панель управления, иначе — форму входа.
+ */
 function checkAuth() {
-    const isAuth = sessionStorage.getItem('adminAuth') === 'true';
+    const isAuth = sessionStorage.getItem('adminAuth') === 'true';  // Читаем флаг
     if (isAuth) {
-        loginBlock.style.display = 'none';
-        adminPanel.style.display = 'block';
-        loadProductsAndRender();
-        showProductsPanel();
+        loginBlock.style.display = 'none';      // Прячем логин
+        adminPanel.style.display = 'block';     // Показываем панель
+        loadProductsAndRender();                // Загружаем товары и отрисовываем таблицу
+        showProductsPanel();                    // Показываем именно панель товаров (не покупателей)
     } else {
-        loginBlock.style.display = 'block';
-        adminPanel.style.display = 'none';
+        loginBlock.style.display = 'block';     // Показываем форму входа
+        adminPanel.style.display = 'none';      // Прячем панель
     }
 }
 
+/** Загружает товары из БД и перерисовывает таблицу товаров. */
 async function loadProductsAndRender() {
-    await loadProducts();
-    renderProductsTable();
+    await loadProducts();          // Функция из data.js – загружает товары в массив products
+    renderProductsTable();         // Отрисовываем таблицу
 }
 
+// Обработчик кнопки "Войти"
 loginBtn.addEventListener('click', () => {
-    if (passwordInput.value === ADMIN_PASSWORD) {
-        sessionStorage.setItem('adminAuth', 'true');
-        checkAuth();
+    if (passwordInput.value === ADMIN_PASSWORD) {           // Проверяем пароль
+        sessionStorage.setItem('adminAuth', 'true');        // Запоминаем, что вошли
+        checkAuth();                                        // Обновляем интерфейс
         showNotification('Добро пожаловать в админ-панель', 'success');
     } else {
         showNotification('Неверный пароль', 'error');
     }
-    passwordInput.value = '';
+    passwordInput.value = '';   // Очищаем поле пароля
 });
 
+// Обработчик кнопки "Выйти"
 logoutBtn.addEventListener('click', () => {
-    sessionStorage.removeItem('adminAuth');
-    checkAuth();
-    resetForm();
+    sessionStorage.removeItem('adminAuth');   // Удаляем флаг авторизации
+    checkAuth();                              // Обновляем интерфейс (вернёт форму входа)
+    resetForm();                              // Сбрасываем форму добавления товара
 });
 
 // ==================== УПРАВЛЕНИЕ ТОВАРАМИ ====================
+/**
+ * Отрисовывает таблицу со списком товаров на основе массива products.
+ * Для каждого товара создаёт строку с кнопками "Ред." и "Уд.".
+ */
 function renderProductsTable() {
-    if (!tableBody) return;
-    tableBody.innerHTML = '';
-    products.forEach(p => {
-        const row = document.createElement('tr');
+    if (!tableBody) return;          // Если таблицы нет на странице – выходим
+    tableBody.innerHTML = '';        // Очищаем текущее содержимое
+
+    products.forEach(p => {          // Перебираем все товары
+        const row = document.createElement('tr');   // Создаём строку
+        // Заполняем строку HTML-кодом с данными товара
         row.innerHTML = `
-            <td>${p.id}</td>
-            <td>${p.name}</td>
-            <td>${categoryNames[p.category] || p.category}</td>
-            <td>${p.price.toLocaleString()} ₽</td>
+            <td>${p.id}</td>                                           <!-- ID -->
+            <td>${p.name}</td>                                         <!-- Название -->
+            <td>${categoryNames[p.category] || p.category}</td>        <!-- Категория (человеческое название) -->
+            <td>${p.price.toLocaleString()} ₽</td>                     <!-- Цена с разделителями -->
             <td style="text-align: center; cursor: pointer;" data-featured-id="${p.id}">
-                ${p.featured ? '✅' : '❌'}
+                ${p.featured ? '✅' : '❌'}                             <!-- Статус "На главной" -->
             </td>
             <td>
                 <button class="btn-small btn" data-id="${p.id}" data-action="edit">Ред.</button>
                 <button class="btn-small btn-danger" data-id="${p.id}" data-action="delete">Уд.</button>
             </td>
         `;
-        tableBody.appendChild(row);
+        tableBody.appendChild(row);    // Добавляем строку в таблицу
     });
 
+    // Навешиваем обработчики на кнопки "Ред."
     document.querySelectorAll('[data-action="edit"]').forEach(btn => {
         btn.addEventListener('click', (e) => editProduct(parseInt(e.target.dataset.id)));
     });
+    // Навешиваем обработчики на кнопки "Уд."
     document.querySelectorAll('[data-action="delete"]').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             const id = parseInt(e.target.dataset.id);
-            if (confirm('Удалить товар?')) {
-                await deleteProduct(id);
-                renderProductsTable();
+            if (confirm('Удалить товар?')) {          // Подтверждение через стандартный диалог
+                await deleteProduct(id);              // Удаляем из БД
+                renderProductsTable();                // Перерисовываем таблицу
             }
         });
     });
 }
 
+/**
+ * Заполняет форму редактирования данными выбранного товара.
+ * @param {number} id - ID товара
+ */
 function editProduct(id) {
-    const product = products.find(p => p.id === id);
-    if (!product) return;
+    const product = products.find(p => p.id === id);   // Находим товар по ID
+    if (!product) return;                              // Если не найден – выходим
+
+    // Заполняем поля формы
     productIdInput.value = product.id;
     productNameInput.value = product.name;
     productCategoryInput.value = product.category;
@@ -110,19 +134,22 @@ function editProduct(id) {
     productImageInput.value = product.image;
     productDescriptionInput.value = product.description || '';
     productFeaturedInput.checked = product.featured || false;
-    saveBtn.textContent = 'Обновить';
+    saveBtn.textContent = 'Обновить';                  // Меняем текст кнопки
 }
 
+/** Сбрасывает форму добавления/редактирования в исходное состояние. */
 function resetForm() {
-    productForm.reset();
-    productIdInput.value = '';
-    productFeaturedInput.checked = false;
-    saveBtn.textContent = 'Сохранить';
+    productForm.reset();                     // Очищаем все поля
+    productIdInput.value = '';               // Явно очищаем скрытое поле ID
+    productFeaturedInput.checked = false;    // Снимаем чекбокс
+    saveBtn.textContent = 'Сохранить';       // Возвращаем текст кнопки
 }
 
+// Обработчик отправки формы (добавление или обновление товара)
 productForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    e.preventDefault();   // Не даём странице перезагрузиться
 
+    // Получаем имя файла изображения и убираем возможные префиксы (images/ или ../images/)
     let image = productImageInput.value.trim();
     image = image.replace(/^(\.\.\/)?images\//, '');
     if (!image) {
@@ -130,6 +157,7 @@ productForm.addEventListener('submit', async (e) => {
         return;
     }
 
+    // Собираем объект с данными товара
     const productData = {
         name: productNameInput.value.trim(),
         category: productCategoryInput.value,
@@ -139,42 +167,53 @@ productForm.addEventListener('submit', async (e) => {
         featured: productFeaturedInput.checked
     };
 
-    const id = productIdInput.value ? parseInt(productIdInput.value) : null;
+    const id = productIdInput.value ? parseInt(productIdInput.value) : null;   // Если есть ID – редактирование, иначе добавление
+
     if (id) {
+        // Обновляем существующий товар
         const success = await updateProduct(id, productData);
         if (success) showNotification('Товар обновлён', 'success');
         else showNotification('Ошибка обновления', 'error');
     } else {
+        // Добавляем новый товар
         const newProduct = await addProduct(productData);
         if (newProduct) showNotification('Товар добавлен', 'success');
         else showNotification('Ошибка добавления', 'error');
     }
 
-    resetForm();
-    renderProductsTable();
+    resetForm();               // Очищаем форму
+    renderProductsTable();     // Обновляем таблицу
 });
 
-cancelBtn.addEventListener('click', resetForm);
+cancelBtn.addEventListener('click', resetForm);   // Кнопка "Отмена" сбрасывает форму
 
-// ==================== ПАНЕЛИ ====================
+// ==================== ПЕРЕКЛЮЧЕНИЕ МЕЖДУ ПАНЕЛЯМИ ====================
+/** Показывает панель управления товарами, скрывает панель покупателей. */
 function showProductsPanel() {
+    // Показываем все контейнеры с классом .admin-container, кроме панели покупателей
     document.querySelectorAll('.admin-container:not(#customersPanel)').forEach(el => el.style.display = 'block');
-    if (customersPanel) customersPanel.style.display = 'none';
+    if (customersPanel) customersPanel.style.display = 'none';   // Скрываем панель покупателей
 }
 
+/** Показывает панель покупателей (заказы), скрывает всё остальное. */
 function showCustomersPanel() {
+    // Скрываем все обычные контейнеры админки
     document.querySelectorAll('.admin-container:not(#customersPanel)').forEach(el => el.style.display = 'none');
-    if (customersPanel) customersPanel.style.display = 'block';
-    renderOrdersTable();
+    if (customersPanel) customersPanel.style.display = 'block';  // Показываем панель покупателей
+    renderOrdersTable();   // Отрисовываем таблицу заказов
 }
 
-// ==================== ЗАКАЗЫ ====================
+// ==================== ЗАКАЗЫ (РАБОТА С SUPABASE) ====================
+/**
+ * Загружает заказы из таблицы orders вместе с позициями (order_items).
+ * @returns {Array} Массив заказов
+ */
 async function loadOrders() {
-    if (!window.supabaseClient) return [];
+    if (!window.supabaseClient) return [];   // Если клиент Supabase не готов – возвращаем пустой массив
     const { data, error } = await window.supabaseClient
         .from('orders')
-        .select(`*, order_items (*)`)
-        .order('id', { ascending: false });
+        .select(`*, order_items (*)`)        // Загружаем заказ и связанные позиции
+        .order('id', { ascending: false });  // Сортируем по убыванию ID (новые сверху)
     if (error) {
         console.error('Ошибка загрузки заказов:', error);
         return [];
@@ -182,21 +221,24 @@ async function loadOrders() {
     return data;
 }
 
+/** Отрисовывает таблицу заказов в панели покупателей. */
 async function renderOrdersTable() {
     if (!ordersTableBody) return;
-    const orders = await loadOrders();
+    const orders = await loadOrders();   // Загружаем заказы
+
     if (orders.length === 0) {
         ordersTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Заказов пока нет</td></tr>';
         return;
     }
 
+    // Генерируем строки таблицы
     ordersTableBody.innerHTML = orders.map(order => `
         <tr>
-            <td>#${order.id}</td>
-            <td>${order.date}</td>
-            <td>${order.customer_name}</td>
-            <td>${order.phone}</td>
-            <td>${order.total.toLocaleString()} ₽</td>
+            <td>#${order.id}</td>                                    <!-- ID заказа -->
+            <td>${order.date}</td>                                   <!-- Дата -->
+            <td>${order.customer_name}</td>                          <!-- Покупатель -->
+            <td>${order.phone}</td>                                  <!-- Телефон -->
+            <td>${order.total.toLocaleString()} ₽</td>               <!-- Сумма -->
             <td>
                 <button class="btn-small btn" data-order-id="${order.id}" data-action="view-order" title="Просмотр">👁️</button>
                 <button class="btn-small btn-danger" data-order-id="${order.id}" data-action="delete-order" title="Удалить">🗑️</button>
@@ -204,18 +246,24 @@ async function renderOrdersTable() {
         </tr>
     `).join('');
 
+    // Навешиваем обработчики на кнопки просмотра
     document.querySelectorAll('[data-action="view-order"]').forEach(btn => {
         btn.addEventListener('click', (e) => showOrderDetails(parseInt(e.target.dataset.orderId)));
     });
 }
 
+/**
+ * Отображает модальное окно с деталями заказа.
+ * @param {number} orderId - ID заказа
+ */
 function showOrderDetails(orderId) {
     loadOrders().then(orders => {
-        const order = orders.find(o => o.id === orderId);
+        const order = orders.find(o => o.id === orderId);   // Находим нужный заказ
         if (!order) return;
         if (!modalBody) modalBody = document.getElementById('modalBody');
         if (!modalBody) return;
 
+        // Формируем список позиций заказа
         let itemsHtml = '';
         order.order_items.forEach(item => {
             itemsHtml += `
@@ -226,6 +274,7 @@ function showOrderDetails(orderId) {
             `;
         });
 
+        // Заполняем тело модального окна
         modalBody.innerHTML = `
             <p><strong>Заказ #${order.id}</strong></p>
             <p><strong>Дата:</strong> ${order.date}</p>
@@ -237,31 +286,41 @@ function showOrderDetails(orderId) {
                 Итого: ${order.total.toLocaleString()} ₽
             </p>
         `;
-        orderModal.style.display = 'flex';
+        orderModal.style.display = 'flex';   // Показываем модальное окно
     });
 }
 
-// ==================== БЫСТРОЕ ПЕРЕКЛЮЧЕНИЕ FEATURED ====================
+// ==================== БЫСТРОЕ ПЕРЕКЛЮЧЕНИЕ FEATURED (✅/❌) ====================
+// Обработчик клика по ячейке с атрибутом data-featured-id
 document.addEventListener('click', async (e) => {
-    const target = e.target.closest('td[data-featured-id]');
+    const target = e.target.closest('td[data-featured-id]');   // Ищем родительскую ячейку
     if (!target) return;
-    const productId = parseInt(target.dataset.featuredId);
+
+    const productId = parseInt(target.dataset.featuredId);     // ID товара
     const product = products.find(p => p.id === productId);
     if (!product) return;
-    const newFeatured = !product.featured;
+
+    const newFeatured = !product.featured;                    // Инвертируем статус
     const success = await updateProduct(productId, { featured: newFeatured });
     if (success) {
-        renderProductsTable();
+        renderProductsTable();   // Обновляем таблицу
         showNotification(`Товар "${product.name}" ${newFeatured ? 'добавлен на' : 'убран с'} главной`, 'info');
     } else {
         showNotification('Не удалось изменить статус', 'error');
     }
 });
 
+// ==================== КАСТОМНОЕ ОКНО ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ ====================
+/**
+ * Показывает модальное окно подтверждения с заданным сообщением.
+ * @param {string} message - Текст вопроса
+ * @param {Function} onConfirm - Функция, которая выполнится при подтверждении
+ */
 function showConfirmModal(message, onConfirm) {
+    // Если окно ещё не создано – создаём его динамически
     if (!confirmModal) {
         confirmModal = document.createElement('div');
-        confirmModal.id = 'confirmModal';   // ← добавили id
+        confirmModal.id = 'confirmModal';   // Присваиваем id для стилизации
         confirmModal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10001;display:flex;align-items:center;justify-content:center;';
         confirmModal.innerHTML = `
             <div>
@@ -273,20 +332,25 @@ function showConfirmModal(message, onConfirm) {
             </div>
         `;
         document.body.appendChild(confirmModal);
+        // Закрытие по кнопке "Отмена"
         confirmModal.querySelector('#confirmNo').addEventListener('click', () => confirmModal.style.display = 'none');
+        // Закрытие по клику на фон
         confirmModal.addEventListener('click', (e) => { if (e.target === confirmModal) confirmModal.style.display = 'none'; });
     }
+    // Устанавливаем текст сообщения
     document.getElementById('confirmMessage').textContent = message;
     const yesBtn = document.getElementById('confirmYes');
     const oldHandler = yesBtn.onclick;
+    // Назначаем обработчик на кнопку "Да"
     yesBtn.onclick = () => {
         confirmModal.style.display = 'none';
-        onConfirm();
-        yesBtn.onclick = oldHandler;
+        onConfirm();                     // Выполняем переданную функцию
+        yesBtn.onclick = oldHandler;     // Восстанавливаем старый обработчик (если был)
     };
-    confirmModal.style.display = 'flex';
+    confirmModal.style.display = 'flex'; // Показываем окно
 }
 
+// Обработчик клика по кнопке удаления заказа (🗑️)
 document.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-action="delete-order"]');
     if (!btn) return;
@@ -297,22 +361,26 @@ document.addEventListener('click', async (e) => {
             showNotification('Ошибка удаления заказа', 'error');
         } else {
             showNotification('Заказ удалён', 'warning');
-            renderOrdersTable();
+            renderOrdersTable();   // Обновляем таблицу заказов
         }
     });
 });
 
-// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+// ==================== ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ====================
 document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
-    updateCartCount();
+    checkAuth();                // Проверяем авторизацию
+    updateCartCount();          // Обновляем счётчик корзины в шапке
 
+    // Получаем элементы модального окна просмотра заказа
     orderModal = document.getElementById('orderModal');
     closeModalBtn = document.getElementById('closeModalBtn');
     modalBody = document.getElementById('modalBody');
 
+    // Настраиваем закрытие модального окна
     if (closeModalBtn) closeModalBtn.addEventListener('click', () => orderModal.style.display = 'none');
     if (orderModal) orderModal.addEventListener('click', (e) => { if (e.target === orderModal) orderModal.style.display = 'none'; });
+
+    // Кнопки переключения панелей
     if (customersBtn) customersBtn.addEventListener('click', showCustomersPanel);
     if (backToProductsBtn) backToProductsBtn.addEventListener('click', showProductsPanel);
 });

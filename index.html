@@ -2,9 +2,11 @@
 <html lang="ru">                                 <!-- Корневой элемент, язык страницы — русский -->
 <head>                                           <!-- Метаданные и подключения -->
     <meta charset="UTF-8">                       <!-- Кодировка UTF-8 для корректного отображения кириллицы -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- Настройки области просмотра для адаптивности -->  <!-- Ширина по ширине экрана, масштаб 1 -->
+    <!-- Адаптивный вьюпорт: ширина по ширине устройства, начальный масштаб 1 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мебельный магазин "Уют"</title>       <!-- Заголовок вкладки браузера -->
-    <link rel="stylesheet" href="css/style.css"> <!-- Подключение основных стилей магазина (путь из корня) -->
+    <!-- Подключаем основные стили магазина (лежат в папке css) -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>                                           <!-- Видимое содержимое страницы -->
 
@@ -24,7 +26,7 @@
                             <span class="cart-count">0</span>       <!-- Счётчик товаров в корзине (обновляется JS) -->
                         </a>
                     </li>
-                    <li><a href="html/admin.html">Админ</a></li>
+                    <li><a href="html/admin.html">Админ</a></li>    <!-- Ссылка на админ-панель -->
                 </ul>
             </nav>
             <!-- Кнопка переключения светлой/тёмной темы -->
@@ -36,218 +38,276 @@
 
     <!-- ==================== ОСНОВНОЙ КОНТЕНТ ==================== -->
     <main>                                       <!-- Основное содержимое страницы -->
-        
-        <!-- ---------- ГЕРОЙ-БЛОК (ПРИВЕТСТВИЕ) ---------- -->
-<section class="hero">
-    <div class="hero-slider">
-        <div class="slides-container">
-            <!-- Слайд 1 -->
-            <div class="slide active">
-                <div class="container slide-content">
-                    <h1>Мебель для вашего дома</h1>
-                    <p>Качество и стиль по доступным ценам</p>
-                    <a href="html/catalog.html" class="btn">Смотреть каталог</a>
-                </div>
-            </div>
-            <!-- Слайд 2 -->
-            <div class="slide">
-                <div class="container slide-content">
-                    <h1>Новая коллекция 2026</h1>
-                    <p>Скидки до 30% на мягкую мебель</p>
-                    <a href="html/catalog.html" class="btn">В каталог</a>
-                </div>
-            </div>
-            <!-- Слайд 3 -->
-            <div class="slide">
-                <div class="container slide-content">
-                    <h1>Бесплатная доставка</h1>
-                    <p>При заказе от 30 000 ₽</p>
-                    <a href="html/catalog.html" class="btn">Выбрать мебель</a>
-                </div>
-            </div>
-        </div>
 
-        <!-- Кнопки навигации -->
-        <button class="slider-btn prev" aria-label="Предыдущий слайд">&#10094;</button>
-        <button class="slider-btn next" aria-label="Следующий слайд">&#10095;</button>
+        <!-- ---------- ГЕРОЙ-БЛОК (СЛАЙДЕР) ---------- -->
+        <section class="hero">                   <!-- Секция hero, в которой находится слайдер -->
+            <div class="hero-slider">            <!-- Обёртка слайдера -->
+                <div class="slides-container">   <!-- Контейнер для всех слайдов -->
+                    <!-- Слайд 1 -->
+                    <div class="slide active">   <!-- Класс active делает слайд видимым -->
+                        <div class="container slide-content">  <!-- Центрирующий контейнер для контента слайда -->
+                            <h1>Мебель для вашего дома</h1>
+                            <p>Качество и стиль по доступным ценам</p>
+                            <a href="html/catalog.html" class="btn">Смотреть каталог</a>
+                        </div>
+                    </div>
+                    <!-- Слайд 2 -->
+                    <div class="slide">
+                        <div class="container slide-content">
+                            <h1>Новая коллекция 2026</h1>
+                            <p>Скидки до 30% на мягкую мебель</p>
+                            <a href="html/catalog.html" class="btn">В каталог</a>
+                        </div>
+                    </div>
+                    <!-- Слайд 3 -->
+                    <div class="slide">
+                        <div class="container slide-content">
+                            <h1>Бесплатная доставка</h1>
+                            <p>При заказе от 30 000 ₽</p>
+                            <a href="html/catalog.html" class="btn">Выбрать мебель</a>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Индикаторы (точки) -->
-        <div class="slider-dots">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-        </div>
-    </div>
-</section>
+                <!-- Кнопки навигации (влево/вправо) -->
+                <button class="slider-btn prev" aria-label="Предыдущий слайд">&#10094;</button>
+                <button class="slider-btn next" aria-label="Следующий слайд">&#10095;</button>
+
+                <!-- Индикаторы (точки) внизу слайдера -->
+                <div class="slider-dots">
+                    <span class="dot active"></span>   <!-- Активная точка соответствует первому слайду -->
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+        </section>
 
         <!-- ---------- БЛОК ПОПУЛЯРНЫХ ТОВАРОВ ---------- -->
         <section class="popular">                <!-- Секция с популярными товарами -->
             <div class="container">              <!-- Центрирующий контейнер -->
                 <h2>Популярные товары</h2>       <!-- Заголовок секции -->
-                <!-- Контейнер, куда будет отрисована сетка товаров через JavaScript -->
+                <!-- Контейнер, куда JavaScript отрисует карточки товаров -->
                 <div class="products-grid" id="popular-products"></div>
             </div>
         </section>
-        
+
     </main>
 
     <!-- ==================== ПОДКЛЮЧЕНИЕ СКРИПТОВ ==================== -->
-<script src="js/data.js"></script>
-<script src="js/cart.js"></script>
-<script src="js/theme.js"></script>
-<script>
-    let productsLoaded = false;
+    <!-- Основные скрипты магазина -->
+    <script src="js/data.js"></script>           <!-- Управление товарами (загрузка из Supabase) -->
+    <script src="js/cart.js"></script>           <!-- Логика корзины (addToCart, updateCartCount) -->
+    <script src="js/theme.js"></script>          <!-- Дополнительный скрипт темы (на случай, если onclick не сработал) -->
 
-    async function renderPopular() {
-        const container = document.getElementById('popular-products');
-        if (!container) return;
-
-        // Загружаем товары только один раз, если их ещё нет
-        if (!productsLoaded && (!products || products.length === 0)) {
-            await loadProducts();
-            productsLoaded = true;
-        }
-
-        const popular = products.filter(p => p.featured).slice(0, 4);
-        container.innerHTML = popular.map(p => `
-            <div class="product-card">
-                <div class="product-image-wrapper">
-                    <a href="html/product.html?id=${p.id}">
-                        <img src="${getImagePath(p.image)}" alt="${p.name}">
-                    </a>
-                    <button class="quick-add" onclick="addToCart(${p.id})" title="Добавить в корзину">+</button>
-                </div>
-                <div class="product-info">
-                    <h3>${p.name}</h3>
-                    <div class="price">${p.price.toLocaleString()} ₽</div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-        if (!products || products.length === 0) {
-            await loadProducts();
-            productsLoaded = true;
-        }
-        await renderPopular();
-        updateCartCount();
-    });
-</script>
-    
-    <!-- ==================== КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ==================== -->
-    <!-- Фиксированный блок в правом верхнем углу для показа всплывающих сообщений -->
-    <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
-    
-    <!-- ==================== СКРИПТ УВЕДОМЛЕНИЙ (ВСТРОЕННЫЙ) ==================== -->
+    <!-- Встроенный скрипт для отрисовки популярных товаров на главной -->
     <script>
-    (function() {                                          // Самовызывающаяся функция для изоляции
-        const container = document.getElementById('notification-container');  // Находим контейнер
-        if (!container) return;                            // Если контейнера нет — выходим
+        // Флаг, чтобы не загружать товары повторно из БД, если они уже есть
+        let productsLoaded = false;
 
-        // Глобальная функция показа уведомлений (доступна из любого места)
-        window.showNotification = function(message, type = 'success', duration = 3000) {
-            const notification = document.createElement('div');   // Создаём элемент уведомления
-            notification.className = 'notification ' + type;      // Добавляем классы (notification и тип: success/error/warning/info)
-            
-            // Выбор иконки в зависимости от типа
-            let icon = '✅';
-            if (type === 'error') icon = '❌';
-            else if (type === 'warning') icon = '⚠️';
-            else if (type === 'info') icon = 'ℹ️';
+        /**
+         * Асинхронная функция renderPopular – загружает товары из Supabase (при необходимости)
+         * и отрисовывает на главной странице карточки товаров, у которых featured = true.
+         * Берёт не более 4 товаров.
+         */
+        async function renderPopular() {
+            // Находим контейнер для сетки популярных товаров
+            const container = document.getElementById('popular-products');
+            // Если контейнера нет (например, мы не на главной), выходим
+            if (!container) return;
 
-            // Внутренняя структура уведомления
-            notification.innerHTML = `
-                <span class="icon">${icon}</span>                <!-- Иконка -->
-                <span class="message">${message}</span>          <!-- Текст сообщения -->
-                <button class="close-btn">&times;</button>       <!-- Кнопка закрытия (крестик) -->
-            `;
-            container.appendChild(notification);                  // Добавляем в контейнер
+            // Если товары ещё не загружены и массив products пуст, загружаем их из Supabase
+            if (!productsLoaded && (!products || products.length === 0)) {
+                await loadProducts();            // функция из data.js – запрашивает товары из БД
+                productsLoaded = true;           // запоминаем, что загрузка уже была
+            }
 
-            const closeBtn = notification.querySelector('.close-btn');  // Находим кнопку закрытия
-            // Функция удаления уведомления с анимацией
-            const remove = () => {
-                notification.style.animation = 'fadeOut 0.2s forwards';  // Запускаем CSS-анимацию исчезновения
-                setTimeout(() => notification.remove(), 200);            // Удаляем элемент после завершения анимации
-            };
-            closeBtn.addEventListener('click', remove);           // Закрытие по клику на крестик
-            if (duration > 0) setTimeout(remove, duration);      // Автоматическое закрытие через duration мс
-        };
-        console.log('✅ showNotification готов');                // Отладочное сообщение
-    })();
+            // Фильтруем массив products: оставляем только товары с featured: true
+            // и берём первые 4 (slice(0,4))
+            const popular = products.filter(p => p.featured).slice(0, 4);
+
+            // Генерируем HTML-разметку для каждой карточки и вставляем в контейнер
+            container.innerHTML = popular.map(p => `
+                <div class="product-card">
+                    <!-- Обёртка для картинки и кнопки быстрого добавления -->
+                    <div class="product-image-wrapper">
+                        <!-- Ссылка на детальную страницу товара, картинка кликабельна -->
+                        <a href="html/product.html?id=${p.id}">
+                            <!-- Путь к картинке формируется через getImagePath (data.js) -->
+                            <img src="${getImagePath(p.image)}" alt="${p.name}">
+                        </a>
+                        <!-- Кнопка-плюсик для быстрого добавления товара в корзину -->
+                        <button class="quick-add" onclick="addToCart(${p.id})" title="Добавить в корзину">+</button>
+                    </div>
+                    <!-- Информация о товаре: название и цена -->
+                    <div class="product-info">
+                        <h3>${p.name}</h3>
+                        <div class="price">${p.price.toLocaleString()} ₽</div>
+                    </div>
+                </div>
+            `).join('');   // join('') склеивает массив строк в одну HTML-строку
+        }
+
+        // После полной загрузки DOM выполняем начальную загрузку данных и отрисовку
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Если товары ещё не загружены (например, первый заход), загружаем их
+            if (!products || products.length === 0) {
+                await loadProducts();
+                productsLoaded = true;
+            }
+            // Отрисовываем популярные товары
+            await renderPopular();
+            // Обновляем счётчик корзины в шапке (функция из cart.js)
+            updateCartCount();
+        });
     </script>
 
-<script>
-    (function() {
-        const slides = document.querySelectorAll('.slide');
-        const dots = document.querySelectorAll('.dot');
-        const prevBtn = document.querySelector('.prev');
-        const nextBtn = document.querySelector('.next');
-        let currentIndex = 0;
-        let slideInterval;
+    <!-- ==================== КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ==================== -->
+    <!-- Фиксированный блок в правом верхнем углу для всплывающих сообщений -->
+    <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
-        function showSlide(index) {
-            if (index >= slides.length) index = 0;
-            if (index < 0) index = slides.length - 1;
-            
-            slides.forEach((slide, i) => {
-                slide.classList.toggle('active', i === index);
-            });
+    <!-- ==================== СКРИПТ УВЕДОМЛЕНИЙ (ВСТРОЕННЫЙ) ==================== -->
+    <script>
+        // Самовызывающаяся функция – изолирует переменные от глобальной области
+        (function() {
+            // Находим контейнер для уведомлений по его id
+            const container = document.getElementById('notification-container');
+            // Если контейнера нет на странице – выходим
+            if (!container) return;
+
+            // Глобальная функция showNotification – будет доступна из любого скрипта
+            window.showNotification = function(message, type = 'success', duration = 3000) {
+                // Создаём div-элемент, который будет представлять уведомление
+                const notification = document.createElement('div');
+                // Добавляем CSS-классы: базовый 'notification' и класс типа (success/error/warning/info)
+                notification.className = 'notification ' + type;
+
+                // Выбираем иконку в зависимости от типа сообщения
+                let icon = '✅';
+                if (type === 'error') icon = '❌';
+                else if (type === 'warning') icon = '⚠️';
+                else if (type === 'info') icon = 'ℹ️';
+
+                // Заполняем внутреннюю структуру уведомления
+                notification.innerHTML = `
+                    <span class="icon">${icon}</span>                <!-- Иконка -->
+                    <span class="message">${message}</span>          <!-- Текст сообщения -->
+                    <button class="close-btn">&times;</button>       <!-- Кнопка закрытия (крестик) -->
+                `;
+                // Добавляем уведомление в контейнер на странице
+                container.appendChild(notification);
+
+                // Находим кнопку закрытия внутри созданного уведомления
+                const closeBtn = notification.querySelector('.close-btn');
+                // Функция удаления уведомления с плавной анимацией
+                const remove = () => {
+                    // Запускаем CSS-анимацию исчезновения (fadeOut)
+                    notification.style.animation = 'fadeOut 0.2s forwards';
+                    // Через 200 мс (после окончания анимации) удаляем элемент из DOM
+                    setTimeout(() => notification.remove(), 200);
+                };
+                // Закрытие уведомления при клике на крестик
+                closeBtn.addEventListener('click', remove);
+                // Автоматическое закрытие через указанное время (если duration > 0)
+                if (duration > 0) setTimeout(remove, duration);
+            };
+            // Отладочное сообщение в консоль, чтобы убедиться, что скрипт загрузился
+            console.log('✅ showNotification готов');
+        })();
+    </script>
+
+    <!-- ==================== СКРИПТ СЛАЙДЕРА ==================== -->
+    <script>
+        (function() {
+            // Получаем все слайды, точки-индикаторы, кнопки "влево" и "вправо"
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            const prevBtn = document.querySelector('.prev');
+            const nextBtn = document.querySelector('.next');
+            let currentIndex = 0;           // индекс текущего активного слайда
+            let slideInterval;              // переменная для хранения идентификатора интервала автосмены
+
+            /**
+             * Показывает слайд с указанным индексом.
+             * Если индекс выходит за границы, зацикливает (первый/последний).
+             */
+            function showSlide(index) {
+                if (index >= slides.length) index = 0;          // если больше последнего – переходим к первому
+                if (index < 0) index = slides.length - 1;       // если меньше нуля – к последнему
+
+                // У всех слайдов убираем класс active, а нужному добавляем
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === index);
+                });
+                // Аналогично для точек-индикаторов
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+                currentIndex = index;   // запоминаем текущий индекс
+            }
+
+            /** Переключает на следующий слайд. */
+            function nextSlide() {
+                showSlide(currentIndex + 1);
+            }
+
+            /** Переключает на предыдущий слайд. */
+            function prevSlide() {
+                showSlide(currentIndex - 1);
+            }
+
+            /** Запускает автоматическую смену слайдов каждые 5 секунд. */
+            function startAutoSlide() {
+                slideInterval = setInterval(nextSlide, 5000);
+            }
+
+            /** Останавливает автоматическую смену слайдов. */
+            function stopAutoSlide() {
+                clearInterval(slideInterval);
+            }
+
+            // Навешиваем обработчики на кнопки навигации (если они есть)
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    nextSlide();            // переключаем на следующий
+                    stopAutoSlide();        // останавливаем автосмену
+                    startAutoSlide();       // и запускаем заново (чтобы таймер сбросился)
+                });
+            }
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    prevSlide();
+                    stopAutoSlide();
+                    startAutoSlide();
+                });
+            }
+
+            // Навешиваем обработчики на точки-индикаторы
             dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === index);
+                dot.addEventListener('click', () => {
+                    showSlide(i);           // показываем слайд, соответствующий точке
+                    stopAutoSlide();
+                    startAutoSlide();
+                });
             });
-            currentIndex = index;
-        }
 
-        function nextSlide() {
-            showSlide(currentIndex + 1);
-        }
+            // При наведении мыши на слайдер останавливаем автосмену,
+            // чтобы пользователь мог спокойно рассмотреть слайд.
+            const slider = document.querySelector('.hero-slider');
+            slider.addEventListener('mouseenter', stopAutoSlide);
+            // Когда мышь уходит – возобновляем автосмену.
+            slider.addEventListener('mouseleave', startAutoSlide);
 
-        function prevSlide() {
-            showSlide(currentIndex - 1);
-        }
-
-        function startAutoSlide() {
-            slideInterval = setInterval(nextSlide, 5000);
-        }
-
-        function stopAutoSlide() {
-            clearInterval(slideInterval);
-        }
-
-        // Обработчики
-        if (nextBtn) nextBtn.addEventListener('click', () => {
-            nextSlide();
-            stopAutoSlide();
+            // Запускаем автоматическое перелистывание при загрузке страницы.
             startAutoSlide();
-        });
+        })();
+    </script>
 
-        if (prevBtn) prevBtn.addEventListener('click', () => {
-            prevSlide();
-            stopAutoSlide();
-            startAutoSlide();
-        });
+    <!-- ==================== ПОДКЛЮЧЕНИЕ SUPABASE ==================== -->
+    <!-- Библиотека Supabase (облачная база данных) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Наш файл инициализации клиента Supabase (URL и ключ) -->
+    <script src="js/supabase.js"></script>
 
-        dots.forEach((dot, i) => {
-            dot.addEventListener('click', () => {
-                showSlide(i);
-                stopAutoSlide();
-                startAutoSlide();
-            });
-        });
-
-        // Остановка автослайда при наведении
-        const slider = document.querySelector('.hero-slider');
-        slider.addEventListener('mouseenter', stopAutoSlide);
-        slider.addEventListener('mouseleave', startAutoSlide);
-
-        // Запуск
-        startAutoSlide();
-    })();
-</script>
-<!-- Библиотека Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Наш клиент -->
-<script src="js/supabase.js"></script>
 </body>
 </html>
