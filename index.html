@@ -43,7 +43,6 @@
         <div class="slides-container">
             <!-- Слайд 1 -->
             <div class="slide active">
-                <div class="slide-bg" style="background-image: url('images/hero-bg1.jpg');"></div>
                 <div class="container slide-content">
                     <h1>Мебель для вашего дома</h1>
                     <p>Качество и стиль по доступным ценам</p>
@@ -52,7 +51,6 @@
             </div>
             <!-- Слайд 2 -->
             <div class="slide">
-                <div class="slide-bg" style="background-image: url('images/hero-bg2.jpg');"></div>
                 <div class="container slide-content">
                     <h1>Новая коллекция 2026</h1>
                     <p>Скидки до 30% на мягкую мебель</p>
@@ -61,7 +59,6 @@
             </div>
             <!-- Слайд 3 -->
             <div class="slide">
-                <div class="slide-bg" style="background-image: url('images/hero-bg3.jpg');"></div>
                 <div class="container slide-content">
                     <h1>Бесплатная доставка</h1>
                     <p>При заказе от 30 000 ₽</p>
@@ -95,45 +92,48 @@
     </main>
 
     <!-- ==================== ПОДКЛЮЧЕНИЕ СКРИПТОВ ==================== -->
-    <script src="js/data.js"></script>           <!-- Данные товаров и функции работы с ними (products, addProduct, ...) -->
-    <script src="js/cart.js"></script>           <!-- Логика корзины (addToCart, updateCartCount, ...) -->
-    
-    <!-- ==================== СКРИПТ ДЛЯ ГЛАВНОЙ СТРАНИЦЫ (ВСТРОЕННЫЙ) ==================== -->
-    <script>
-        /**
-         * Функция отрисовки первых 4 товаров в блоке "Популярные товары".
-         * Берёт срез из глобального массива products (data.js) и генерирует HTML-карточки.
-         */
-        function renderPopular() {
-            const container = document.getElementById('popular-products');  // Контейнер для сетки
-            if (!container) return;                     // Если контейнера нет — выходим
-            const popular = products.filter(p => p.featured).slice(0, 4);
-            
-            // Генерируем HTML для каждой карточки и вставляем в контейнер
-            container.innerHTML = popular.map(p => `
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <!-- Ссылка на страницу товара, обёрнутая вокруг картинки -->
-                        <a href="html/product.html?id=${p.id}">
-                            <img src="${getImagePath(p.image)}" alt="${p.name}">
-                        </a>
-                        <!-- Кнопка-плюсик для быстрого добавления в корзину -->
-                        <button class="quick-add" onclick="addToCart(${p.id})" title="Добавить в корзину">+</button>
-                    </div>
-                    <div class="product-info">
-                        <h3>${p.name}</h3>                           <!-- Название товара -->
-                        <div class="price">${p.price.toLocaleString()} ₽</div>  <!-- Форматированная цена -->
-                    </div>
-                </div>
-            `).join('');  // Объединяем массив строк в одну HTML-строку
+<script src="js/data.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/theme.js"></script>
+<script>
+    let productsLoaded = false;
+
+    async function renderPopular() {
+        const container = document.getElementById('popular-products');
+        if (!container) return;
+
+        // Загружаем товары только один раз, если их ещё нет
+        if (!productsLoaded && (!products || products.length === 0)) {
+            await loadProducts();
+            productsLoaded = true;
         }
 
-        // После полной загрузки DOM выполняем отрисовку популярных товаров и обновление счётчика корзины
-        document.addEventListener('DOMContentLoaded', () => {
-            renderPopular();
-            updateCartCount();  // Функция из cart.js
-        });
-    </script>
+        const popular = products.filter(p => p.featured).slice(0, 4);
+        container.innerHTML = popular.map(p => `
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <a href="html/product.html?id=${p.id}">
+                        <img src="${getImagePath(p.image)}" alt="${p.name}">
+                    </a>
+                    <button class="quick-add" onclick="addToCart(${p.id})" title="Добавить в корзину">+</button>
+                </div>
+                <div class="product-info">
+                    <h3>${p.name}</h3>
+                    <div class="price">${p.price.toLocaleString()} ₽</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (!products || products.length === 0) {
+            await loadProducts();
+            productsLoaded = true;
+        }
+        await renderPopular();
+        updateCartCount();
+    });
+</script>
     
     <!-- ==================== КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ==================== -->
     <!-- Фиксированный блок в правом верхнем углу для показа всплывающих сообщений -->
@@ -245,6 +245,9 @@
         startAutoSlide();
     })();
 </script>
-
+<!-- Библиотека Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Наш клиент -->
+<script src="js/supabase.js"></script>
 </body>
 </html>

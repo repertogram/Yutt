@@ -1,359 +1,318 @@
-// ==================== АДМИН-ПАНЕЛЬ: УПРАВЛЕНИЕ ТОВАРАМИ ====================
-// Скрипт реализует авторизацию по паролю, CRUD-операции с товарами
-// и синхронизацию с localStorage через глобальные функции из data.js
+// ==================== АДМИН-ПАНЕЛЬ (SUPABASE) ====================
+const ADMIN_PASSWORD = 'admin';
 
-// ---------- 1. КОНФИГУРАЦИЯ ----------
-const ADMIN_PASSWORD = 'admin';                     // Пароль для входа в админ-панель (можно изменить)
-
-// ---------- 2. ПОЛУЧЕНИЕ ССЫЛОК НА DOM-ЭЛЕМЕНТЫ ----------
-const loginBlock = document.getElementById('loginBlock');                 // Блок с формой входа
-const adminPanel = document.getElementById('adminPanel');                 // Основная панель управления (скрыта до входа)
-const passwordInput = document.getElementById('passwordInput');           // Поле ввода пароля
-const loginBtn = document.getElementById('loginBtn');                     // Кнопка "Войти"
-const logoutBtn = document.getElementById('logoutBtn');                   // Кнопка "Выйти"
-const productForm = document.getElementById('productForm');               // Форма добавления/редактирования товара
-const productIdInput = document.getElementById('productId');              // Скрытое поле с ID (пустое при добавлении)
-const productNameInput = document.getElementById('productName');          // Поле "Название"
-const productCategoryInput = document.getElementById('productCategory');  // Выпадающий список категорий
-const productPriceInput = document.getElementById('productPrice');        // Поле "Цена"
-const productImageInput = document.getElementById('productImage');        // Поле "Имя файла изображения"
-const productDescriptionInput = document.getElementById('productDescription'); // Поле "Описание"
-const saveBtn = document.getElementById('saveBtn');                       // Кнопка "Сохранить" (меняет текст)
-const cancelBtn = document.getElementById('cancelBtn');                   // Кнопка "Отмена"
-const tableBody = document.getElementById('tableBody');                   // Тело таблицы со списком товаров
+// DOM-элементы
+const loginBlock = document.getElementById('loginBlock');
+const adminPanel = document.getElementById('adminPanel');
+const passwordInput = document.getElementById('passwordInput');
+const loginBtn = document.getElementById('loginBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const productForm = document.getElementById('productForm');
+const productIdInput = document.getElementById('productId');
+const productNameInput = document.getElementById('productName');
+const productCategoryInput = document.getElementById('productCategory');
+const productPriceInput = document.getElementById('productPrice');
+const productImageInput = document.getElementById('productImage');
+const productDescriptionInput = document.getElementById('productDescription');
+const productFeaturedInput = document.getElementById('productFeatured');
+const saveBtn = document.getElementById('saveBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const tableBody = document.getElementById('tableBody');
 const customersBtn = document.getElementById('customersBtn');
 const customersPanel = document.getElementById('customersPanel');
 const backToProductsBtn = document.getElementById('backToProductsBtn');
 const ordersTableBody = document.getElementById('ordersTableBody');
-const productFeaturedInput = document.getElementById('productFeatured');
-let orderModal, closeModalBtn, modalBody;
 
-// ---------- 3. ПРОВЕРКА СТАТУСА АВТОРИЗАЦИИ ----------
-/**
- * Проверяет, сохранён ли флаг авторизации в sessionStorage.
- * Если да — показывает панель управления и скрывает форму входа.
- * Иначе — показывает форму входа и скрывает панель.
- */
+// Модальное окно
+let orderModal, closeModalBtn, modalBody;
+let confirmModal, confirmModalMessage, confirmModalYes, confirmModalNo;
+let pendingDeleteId = null;
+
+// ==================== АВТОРИЗАЦИЯ ====================
 function checkAuth() {
     const isAuth = sessionStorage.getItem('adminAuth') === 'true';
     if (isAuth) {
         loginBlock.style.display = 'none';
         adminPanel.style.display = 'block';
-        renderProductsTable();
-        showProductsPanel(); 
+        loadProductsAndRender();
+        showProductsPanel();
     } else {
         loginBlock.style.display = 'block';
         adminPanel.style.display = 'none';
     }
 }
 
-// ---------- 4. ОБРАБОТЧИК ВХОДА ----------
+async function loadProductsAndRender() {
+    await loadProducts();
+    renderProductsTable();
+}
+
 loginBtn.addEventListener('click', () => {
-    // Сравниваем введённый пароль с константой ADMIN_PASSWORD
     if (passwordInput.value === ADMIN_PASSWORD) {
-        sessionStorage.setItem('adminAuth', 'true');   // Сохраняем флаг авторизации
-        checkAuth();                                   // Обновляем интерфейс
-        showNotification('Добро пожаловать в админ-панель', 'success');  // Уведомление об успехе
+        sessionStorage.setItem('adminAuth', 'true');
+        checkAuth();
+        showNotification('Добро пожаловать в админ-панель', 'success');
     } else {
-        showNotification('Неверный пароль', 'error');  // Уведомление об ошибке
+        showNotification('Неверный пароль', 'error');
     }
-    passwordInput.value = '';                          // Очищаем поле пароля
+    passwordInput.value = '';
 });
 
-// ---------- 5. ОБРАБОТЧИК ВЫХОДА ----------
 logoutBtn.addEventListener('click', () => {
-    sessionStorage.removeItem('adminAuth');  // Удаляем флаг авторизации
-    checkAuth();                             // Обновляем интерфейс (вернёт форму входа)
-    resetForm();                             // Сбрасываем форму добавления/редактирования
+    sessionStorage.removeItem('adminAuth');
+    checkAuth();
+    resetForm();
 });
 
-// ---------- 6. ОТМЕНА РЕДАКТИРОВАНИЯ ----------
-cancelBtn.addEventListener('click', resetForm);  // При клике на "Отмена" вызываем сброс формы
-
-// ---------- 7. ОТРИСОВКА ТАБЛИЦЫ ТОВАРОВ ----------
-/**
- * Заполняет <tbody> таблицы строками с информацией о товарах.
- * Для каждой строки создаются кнопки "Ред." и "Уд." с data-атрибутами.
- */
+// ==================== УПРАВЛЕНИЕ ТОВАРАМИ ====================
 function renderProductsTable() {
-    if (!tableBody) return;                     // Если таблицы нет на странице — выходим
-    tableBody.innerHTML = '';                   // Очищаем текущее содержимое
-
-    // Перебираем массив products (глобальный из data.js)
+    if (!tableBody) return;
+    tableBody.innerHTML = '';
     products.forEach(p => {
-        const row = document.createElement('tr');   // Создаём строку таблицы
-        // Заполняем строку HTML с данными товара
+        const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${p.id}</td>                                          <!-- ID товара -->
-            <td>${p.name}</td>                                        <!-- Название -->
-            <td>${categoryNames[p.category] || p.category}</td>       <!-- Категория (через маппинг) -->
-            <td>${p.price.toLocaleString()} ₽</td>                    <!-- Форматированная цена -->
+            <td>${p.id}</td>
+            <td>${p.name}</td>
+            <td>${categoryNames[p.category] || p.category}</td>
+            <td>${p.price.toLocaleString()} ₽</td>
+            <td style="text-align: center; cursor: pointer;" data-featured-id="${p.id}">
+                ${p.featured ? '✅' : '❌'}
+            </td>
             <td>
-                <!-- Кнопка редактирования с data-атрибутами -->
                 <button class="btn-small btn" data-id="${p.id}" data-action="edit">Ред.</button>
-                <!-- Кнопка удаления -->
                 <button class="btn-small btn-danger" data-id="${p.id}" data-action="delete">Уд.</button>
             </td>
-<td style="text-align: center; cursor: pointer;" data-featured-id="${p.id}">
-    ${p.featured ? '✅' : '❌'}
-</td>
         `;
-        tableBody.appendChild(row);                // Добавляем строку в таблицу
+        tableBody.appendChild(row);
     });
 
-    // ---------- НАВЕШИВАНИЕ ОБРАБОТЧИКОВ НА КНОПКИ "РЕДАКТИРОВАТЬ" ----------
     document.querySelectorAll('[data-action="edit"]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const id = parseInt(e.target.dataset.id);  // Получаем ID товара из data-атрибута
-            editProduct(id);                           // Заполняем форму для редактирования
-        });
+        btn.addEventListener('click', (e) => editProduct(parseInt(e.target.dataset.id)));
     });
-
-    // ---------- НАВЕШИВАНИЕ ОБРАБОТЧИКОВ НА КНОПКИ "УДАЛИТЬ" ----------
     document.querySelectorAll('[data-action="delete"]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const id = parseInt(e.target.dataset.id);  // ID удаляемого товара
-            if (confirm('Удалить товар?')) {           // Запрос подтверждения
-                deleteProduct(id);                     // Вызов функции удаления из data.js
-                renderProductsTable();                 // Перерисовываем таблицу
-                // Изменения в localStorage автоматически подхватятся на других страницах при обновлении
+        btn.addEventListener('click', async (e) => {
+            const id = parseInt(e.target.dataset.id);
+            if (confirm('Удалить товар?')) {
+                await deleteProduct(id);
+                renderProductsTable();
             }
         });
     });
 }
 
-// ---------- 8. ЗАПОЛНЕНИЕ ФОРМЫ ДЛЯ РЕДАКТИРОВАНИЯ ----------
-/**
- * Находит товар по ID и подставляет его данные в поля формы.
- * Меняет текст кнопки сохранения на "Обновить".
- */
 function editProduct(id) {
-    const product = products.find(p => p.id === id);  // Ищем товар в массиве
-    if (!product) return;                             // Если не найден — выходим
-
-    // Заполняем поля формы
-    productIdInput.value = product.id;                 // Сохраняем ID в скрытое поле
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+    productIdInput.value = product.id;
     productNameInput.value = product.name;
     productCategoryInput.value = product.category;
     productPriceInput.value = product.price;
     productImageInput.value = product.image;
     productDescriptionInput.value = product.description || '';
     productFeaturedInput.checked = product.featured || false;
-    saveBtn.textContent = 'Обновить';                  // Меняем надпись на кнопке
+    saveBtn.textContent = 'Обновить';
 }
 
-// ---------- 9. СБРОС ФОРМЫ ----------
-/**
- * Очищает все поля формы, удаляет ID и возвращает кнопке текст "Сохранить".
- */
 function resetForm() {
-    productForm.reset();                    // Сбрасываем значения полей к начальным
-    productIdInput.value = '';              // Явно очищаем скрытое поле ID
-    saveBtn.textContent = 'Сохранить';      // Возвращаем исходный текст кнопки
+    productForm.reset();
+    productIdInput.value = '';
     productFeaturedInput.checked = false;
+    saveBtn.textContent = 'Сохранить';
 }
 
-// ---------- 10. СОХРАНЕНИЕ (ДОБАВЛЕНИЕ / ОБНОВЛЕНИЕ) ----------
-productForm.addEventListener('submit', (e) => {
-    e.preventDefault();                     // Отменяем стандартную отправку формы
+productForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-    // Собираем объект с данными из полей
+    let image = productImageInput.value.trim();
+    image = image.replace(/^(\.\.\/)?images\//, '');
+    if (!image) {
+        showNotification('Введите имя файла изображения', 'error');
+        return;
+    }
+
     const productData = {
-        name: productNameInput.value.trim(),            // Убираем лишние пробелы
+        name: productNameInput.value.trim(),
         category: productCategoryInput.value,
-        price: parseInt(productPriceInput.value),       // Преобразуем в число
-        image: productImageInput.value.trim(),
+        price: parseInt(productPriceInput.value),
+        image: image,
         description: productDescriptionInput.value.trim(),
         featured: productFeaturedInput.checked
     };
 
-    const id = productIdInput.value ? parseInt(productIdInput.value) : null;  // Если есть ID — редактирование, иначе добавление
-
+    const id = productIdInput.value ? parseInt(productIdInput.value) : null;
     if (id) {
-        // ---------- ОБНОВЛЕНИЕ СУЩЕСТВУЮЩЕГО ТОВАРА ----------
-        if (updateProduct(id, productData)) {           // Вызов функции из data.js
-            showNotification('Товар обновлён', 'success');
-        } else {
-            showNotification('Ошибка обновления', 'error');
-        }
+        const success = await updateProduct(id, productData);
+        if (success) showNotification('Товар обновлён', 'success');
+        else showNotification('Ошибка обновления', 'error');
     } else {
-        // ---------- ДОБАВЛЕНИЕ НОВОГО ТОВАРА ----------
-        addProduct(productData);                        // Вызов функции из data.js
-        showNotification('Товар добавлен', 'success');
+        const newProduct = await addProduct(productData);
+        if (newProduct) showNotification('Товар добавлен', 'success');
+        else showNotification('Ошибка добавления', 'error');
     }
 
-    resetForm();                           // Очищаем форму
-    // Показать панель управления товарами, скрыть панель покупателей
-// Показать панель управления товарами
-function showProductsPanel() {
-    // Показываем все обычные контейнеры админки
-    document.querySelectorAll('.admin-container:not(#customersPanel)').forEach(el => el.style.display = 'block');
-    // Скрываем панель покупателей
-    if (customersPanel) customersPanel.style.display = 'none';
-}
-
-// Показать панель покупателей
-function showCustomersPanel() {
-    // Скрываем все обычные контейнеры
-    document.querySelectorAll('.admin-container:not(#customersPanel)').forEach(el => el.style.display = 'none');
-    // Показываем панель покупателей
-    if (customersPanel) customersPanel.style.display = 'block';
-    // Отрисовываем таблицу заказов
-    renderOrdersTable();
-}
-// Показать панель покупателей, скрыть панели товаров
-function showCustomersPanel() {
-    document.querySelectorAll('.admin-container:not(#customersPanel)').forEach(el => el.style.display = 'none');
-    customersPanel.style.display = 'block';
-}
-    renderProductsTable();                 // Обновляем таблицу
+    resetForm();
+    renderProductsTable();
 });
 
-// ==================== УПРАВЛЕНИЕ ПАНЕЛЯМИ (ТОВАРЫ / ПОКУПАТЕЛИ) ====================
+cancelBtn.addEventListener('click', resetForm);
 
+// ==================== ПАНЕЛИ ====================
 function showProductsPanel() {
-    // Показываем все обычные контейнеры админки (кроме панели покупателей)
     document.querySelectorAll('.admin-container:not(#customersPanel)').forEach(el => el.style.display = 'block');
     if (customersPanel) customersPanel.style.display = 'none';
 }
 
 function showCustomersPanel() {
-    // Скрываем все обычные контейнеры
     document.querySelectorAll('.admin-container:not(#customersPanel)').forEach(el => el.style.display = 'none');
     if (customersPanel) customersPanel.style.display = 'block';
     renderOrdersTable();
 }
 
-// ==================== ОТОБРАЖЕНИЕ ЗАКАЗОВ ====================
+// ==================== ЗАКАЗЫ ====================
+async function loadOrders() {
+    if (!window.supabaseClient) return [];
+    const { data, error } = await window.supabaseClient
+        .from('orders')
+        .select(`*, order_items (*)`)
+        .order('id', { ascending: false });
+    if (error) {
+        console.error('Ошибка загрузки заказов:', error);
+        return [];
+    }
+    return data;
+}
 
-function renderOrdersTable() {
+async function renderOrdersTable() {
     if (!ordersTableBody) return;
-
-    const orders = JSON.parse(localStorage.getItem('furniture_orders')) || [];
-
+    const orders = await loadOrders();
     if (orders.length === 0) {
-        ordersTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Заказов пока нет</td></tr>';
+        ordersTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Заказов пока нет</td></tr>';
         return;
     }
-
-    // Сортируем по дате (новые сверху)
-    orders.sort((a, b) => b.id - a.id);
 
     ordersTableBody.innerHTML = orders.map(order => `
         <tr>
             <td>#${order.id}</td>
             <td>${order.date}</td>
-            <td>${order.customerName}</td>
+            <td>${order.customer_name}</td>
             <td>${order.phone}</td>
             <td>${order.total.toLocaleString()} ₽</td>
             <td>
-                <button class="btn-small btn" data-order-id="${order.id}" data-action="view-order">📄</button>
+                <button class="btn-small btn" data-order-id="${order.id}" data-action="view-order" title="Просмотр">👁️</button>
+                <button class="btn-small btn-danger" data-order-id="${order.id}" data-action="delete-order" title="Удалить">🗑️</button>
             </td>
         </tr>
     `).join('');
 
-    // Обработчики кнопок просмотра деталей
     document.querySelectorAll('[data-action="view-order"]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const orderId = parseInt(e.target.dataset.orderId);
-            showOrderDetails(orderId);
-        });
+        btn.addEventListener('click', (e) => showOrderDetails(parseInt(e.target.dataset.orderId)));
     });
 }
 
 function showOrderDetails(orderId) {
-    if (!modalBody) {
-        modalBody = document.getElementById('modalBody');
-    }
-    if (!modalBody) {
-        console.error('modalBody не найден');
-        return;
-    }
-    
-    const orders = JSON.parse(localStorage.getItem('furniture_orders')) || [];
-    const order = orders.find(o => o.id === orderId);
-    if (!order) return;
+    loadOrders().then(orders => {
+        const order = orders.find(o => o.id === orderId);
+        if (!order) return;
+        if (!modalBody) modalBody = document.getElementById('modalBody');
+        if (!modalBody) return;
 
-    // Формируем HTML для содержимого модального окна
-    let itemsHtml = '';
-    order.items.forEach(item => {
-        itemsHtml += `
-            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
-                <span>${item.name} x ${item.quantity}</span>
-                <span>${(item.price * item.quantity).toLocaleString()} ₽</span>
-            </div>
+        let itemsHtml = '';
+        order.order_items.forEach(item => {
+            itemsHtml += `
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                    <span>${item.product_name} x ${item.quantity}</span>
+                    <span>${(item.price * item.quantity).toLocaleString()} ₽</span>
+                </div>
+            `;
+        });
+
+        modalBody.innerHTML = `
+            <p><strong>Заказ #${order.id}</strong></p>
+            <p><strong>Дата:</strong> ${order.date}</p>
+            <p><strong>Покупатель:</strong> ${order.customer_name}</p>
+            <p><strong>Телефон:</strong> ${order.phone}</p>
+            <p><strong>Адрес:</strong> ${order.address}</p>
+            <div style="margin: 15px 0;"><strong>Состав заказа:</strong>${itemsHtml}</div>
+            <p style="font-size: 18px; font-weight: bold; text-align: right; margin-top: 15px;">
+                Итого: ${order.total.toLocaleString()} ₽
+            </p>
         `;
+        orderModal.style.display = 'flex';
     });
-
-    modalBody.innerHTML = `
-        <p><strong>Заказ #${order.id}</strong></p>
-        <p><strong>Дата:</strong> ${order.date}</p>
-        <p><strong>Покупатель:</strong> ${order.customerName}</p>
-        <p><strong>Телефон:</strong> ${order.phone}</p>
-        <p><strong>Адрес:</strong> ${order.address}</p>
-        <div style="margin: 15px 0;">
-            <strong>Состав заказа:</strong>
-            ${itemsHtml}
-        </div>
-        <p style="font-size: 18px; font-weight: bold; text-align: right; margin-top: 15px;">
-            Итого: ${order.total.toLocaleString()} ₽
-        </p>
-    `;
-
-    // Показываем модальное окно
-    orderModal.style.display = 'flex';
 }
 
-// ---------- 11. ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ----------
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
-    updateCartCount();
-orderModal = document.getElementById('orderModal');
-closeModalBtn = document.getElementById('closeModalBtn');
-modalBody = document.getElementById('modalBody');
 // ==================== БЫСТРОЕ ПЕРЕКЛЮЧЕНИЕ FEATURED ====================
 document.addEventListener('click', async (e) => {
     const target = e.target.closest('td[data-featured-id]');
     if (!target) return;
-    
     const productId = parseInt(target.dataset.featuredId);
     const product = products.find(p => p.id === productId);
     if (!product) return;
-    
     const newFeatured = !product.featured;
     const success = await updateProduct(productId, { featured: newFeatured });
-    
     if (success) {
         renderProductsTable();
-        showNotification(
-            `Товар "${product.name}" ${newFeatured ? 'добавлен на' : 'убран с'} главной`,
-            'info'
-        );
+        showNotification(`Товар "${product.name}" ${newFeatured ? 'добавлен на' : 'убран с'} главной`, 'info');
     } else {
         showNotification('Не удалось изменить статус', 'error');
     }
 });
-// Обработчики модального окна
-if (orderModal) {
-    // Закрытие по клику на крестик
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', () => {
-            orderModal.style.display = 'none';
-        });
+
+function showConfirmModal(message, onConfirm) {
+    if (!confirmModal) {
+        confirmModal = document.createElement('div');
+        confirmModal.id = 'confirmModal';   // ← добавили id
+        confirmModal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10001;display:flex;align-items:center;justify-content:center;';
+        confirmModal.innerHTML = `
+            <div>
+                <p id="confirmMessage"></p>
+                <div style="display:flex;gap:10px;justify-content:flex-end;">
+                    <button class="btn" id="confirmYes" style="background:#e74c3c;">Да, удалить</button>
+                    <button class="btn" id="confirmNo" style="background:#95a5a6;">Отмена</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(confirmModal);
+        confirmModal.querySelector('#confirmNo').addEventListener('click', () => confirmModal.style.display = 'none');
+        confirmModal.addEventListener('click', (e) => { if (e.target === confirmModal) confirmModal.style.display = 'none'; });
     }
-    // Закрытие по клику на затемнённый фон
-    orderModal.addEventListener('click', (e) => {
-        if (e.target === orderModal) {
-            orderModal.style.display = 'none';
-        }
-    });
+    document.getElementById('confirmMessage').textContent = message;
+    const yesBtn = document.getElementById('confirmYes');
+    const oldHandler = yesBtn.onclick;
+    yesBtn.onclick = () => {
+        confirmModal.style.display = 'none';
+        onConfirm();
+        yesBtn.onclick = oldHandler;
+    };
+    confirmModal.style.display = 'flex';
 }
 
-    // Обработчики для раздела покупателей
-    if (customersBtn) {
-        customersBtn.addEventListener('click', showCustomersPanel);
-    }
-    if (backToProductsBtn) {
-        backToProductsBtn.addEventListener('click', showProductsPanel);
-    }
+document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-action="delete-order"]');
+    if (!btn) return;
+    const orderId = parseInt(btn.dataset.orderId);
+    showConfirmModal('Вы уверены, что хотите удалить этот заказ навсегда?', async () => {
+        const { error } = await window.supabaseClient.from('orders').delete().eq('id', orderId);
+        if (error) {
+            showNotification('Ошибка удаления заказа', 'error');
+        } else {
+            showNotification('Заказ удалён', 'warning');
+            renderOrdersTable();
+        }
+    });
+});
+
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+    updateCartCount();
+
+    orderModal = document.getElementById('orderModal');
+    closeModalBtn = document.getElementById('closeModalBtn');
+    modalBody = document.getElementById('modalBody');
+
+    if (closeModalBtn) closeModalBtn.addEventListener('click', () => orderModal.style.display = 'none');
+    if (orderModal) orderModal.addEventListener('click', (e) => { if (e.target === orderModal) orderModal.style.display = 'none'; });
+    if (customersBtn) customersBtn.addEventListener('click', showCustomersPanel);
+    if (backToProductsBtn) backToProductsBtn.addEventListener('click', showProductsPanel);
 });
