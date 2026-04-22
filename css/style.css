@@ -99,15 +99,16 @@ main {
     background: white;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
-    transition: transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                box-shadow 0.3s ease;
     animation: fadeInUp 0.6s ease forwards;
     opacity: 0;
 }
 
 .product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.1);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
 }
 
 .product-card img {
@@ -133,11 +134,19 @@ main {
     margin: 5px 0;
 }
 
+/* Анимация появления карточек */
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
+/* Последовательная задержка */
 .product-card:nth-child(1) { animation-delay: 0.05s; }
 .product-card:nth-child(2) { animation-delay: 0.10s; }
 .product-card:nth-child(3) { animation-delay: 0.15s; }
@@ -147,13 +156,13 @@ main {
 .product-card:nth-child(7) { animation-delay: 0.35s; }
 .product-card:nth-child(8) { animation-delay: 0.40s; }
 .product-card:nth-child(9) { animation-delay: 0.45s; }
-.product-card:nth-child(10){ animation-delay: 0.50s; }
+.product-card:nth-child(10) { animation-delay: 0.50s; }
 
 /* 6. КНОПКИ (BUTTONS)
    ========================================== */
 .btn {
     display: inline-block;
-    background: linear-gradient(145deg, #3498db, #2980b9);
+    background: #3498db;
     color: white;
     padding: 8px 16px;
     border-radius: 4px;
@@ -161,28 +170,19 @@ main {
     border: none;
     cursor: pointer;
     font-size: 14px;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    transition: all 0.2s ease;
+    transition: background 0.3s, box-shadow 0.3s;
 }
 
 .btn:hover {
-    background: linear-gradient(145deg, #3aa0e0, #3085b5);
-    box-shadow: 0 10px 15px -3px rgba(52,152,219,0.3);
-    transform: translateY(-2px);
-}
-
-.btn:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 4px -1px rgba(0,0,0,0.1);
+    background: #2980b9;
 }
 
 .btn-danger {
-    background: linear-gradient(145deg, #e74c3c, #c0392b);
+    background: #981b1b;
 }
 
 .btn-danger:hover {
-    background: linear-gradient(145deg, #f15545, #d13b2e);
-    box-shadow: 0 10px 15px -3px rgba(231,76,60,0.3);
+    background: #631212;
 }
 
 /* 7. ФИЛЬТРЫ В КАТАЛОГЕ (FILTERS)
@@ -193,23 +193,17 @@ main {
 
 .filter-btn {
     background: #ecf0f1;
-    border: 1px solid transparent;
+    border: none;
     padding: 8px 16px;
     margin-right: 10px;
     border-radius: 20px;
     cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.filter-btn:hover {
-    background: #d0d8e0;
-    border-color: #b0bec5;
+    transition: all 0.3s;
 }
 
 .filter-btn.active {
     background: #3498db;
     color: white;
-    box-shadow: 0 0 15px rgba(52,152,219,0.5);
 }
 
 /* 8. КОРЗИНА (CART)
@@ -232,10 +226,6 @@ main {
 
 .cart-table th {
     background: #f8f9fa;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    font-size: 0.8rem;
 }
 
 .quantity-control {
@@ -275,10 +265,6 @@ body.dark-theme .product-card {
     box-shadow: 0 3px 10px rgba(255,255,255,0.05);
 }
 
-body.dark-theme .product-card:hover {
-    box-shadow: 0 0 30px rgba(52,152,219,0.3);
-}
-
 body.dark-theme .cart-table {
     background: #2c2c2c;
 }
@@ -293,11 +279,11 @@ body.dark-theme .cart-table td {
 }
 
 body.dark-theme .btn {
-    background: linear-gradient(145deg, #4a7daa, #2c5a7a);
+    background: #3a6ea5;
 }
 
 body.dark-theme .btn-danger {
-    background: linear-gradient(145deg, #d65548, #a82e23);
+    background: #b03a2e;
 }
 
 body.dark-theme .filter-btn {
@@ -310,8 +296,8 @@ body.dark-theme .filter-btn.active {
 }
 
 body.dark-theme .modal-content {
-    background: #2c2c2c !important;
-    color: #e0e0e0 !important;
+    background: #2c2c2c;
+    color: #e0e0e0;
 }
 
 /* 10. КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ
@@ -400,8 +386,8 @@ body.dark-theme .cart-product-link::after {
     right: 10px;
     width: 36px;
     height: 36px;
-    background: rgba(255,255,255,0.9);
-    border: 1px solid rgba(0,0,0,0.08);
+    background: #f8f8f8;
+    border: 1px solid #bdc3c7;
     border-radius: 50%;
     font-size: 28px;
     font-weight: 300;
@@ -410,8 +396,8 @@ body.dark-theme .cart-product-link::after {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 8px 16px -4px rgba(0,0,0,0.1);
-    transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
     line-height: 1;
     padding: 0;
     backdrop-filter: blur(4px);
@@ -420,12 +406,12 @@ body.dark-theme .cart-product-link::after {
 .quick-add:hover {
     background: #3498db;
     color: white;
-    transform: scale(1.15) translateY(-2px);
-    box-shadow: 0 12px 20px -5px rgba(52,152,219,0.4);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
 }
 
 body.dark-theme .quick-add {
-    background: rgba(40,40,40,0.9);
+    background: rgba(40, 40, 40, 0.9);
     color: #ecf0f1;
 }
 
@@ -454,9 +440,17 @@ body.dark-theme .quick-add:hover {
     backdrop-filter: blur(8px);
 }
 
-.notification.error   { border-left-color: #e74c3c; }
-.notification.warning { border-left-color: #f39c12; }
-.notification.info    { border-left-color: #3498db; }
+.notification.error {
+    border-left-color: #e74c3c;
+}
+
+.notification.warning {
+    border-left-color: #f39c12;
+}
+
+.notification.info {
+    border-left-color: #3498db;
+}
 
 .notification .icon {
     font-size: 24px;
@@ -516,7 +510,6 @@ body.dark-theme .notification .close-btn:hover {
    ========================================== */
 .modal {
     transition: opacity 0.2s;
-    backdrop-filter: blur(8px);
 }
 
 .modal-content {
@@ -527,7 +520,7 @@ body.dark-theme .notification .close-btn:hover {
 
 @keyframes modalFadeIn {
     from { opacity: 0; transform: translateY(-20px); }
-    to   { opacity: 1; transform: translateY(0); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 body.dark-theme .modal-content {
@@ -571,6 +564,7 @@ body.dark-theme #confirmModal p {
     color: #e0e0e0 !important;
 }
 
+/* Специфичные стили для кнопок в модальном окне подтверждения */
 #confirmYes,
 #confirmNo {
     display: inline-block;
@@ -589,6 +583,7 @@ body.dark-theme #confirmModal p {
 #confirmYes {
     background: #e74c3c !important;
 }
+
 #confirmYes:hover {
     background: #c0392b !important;
 }
@@ -596,6 +591,7 @@ body.dark-theme #confirmModal p {
 #confirmNo {
     background: #95a5a6 !important;
 }
+
 #confirmNo:hover {
     background: #7f8c8d !important;
 }
@@ -720,48 +716,15 @@ body.dark-theme #confirmModal p {
     opacity: 0.8;
 }
 
-/* 18. HERO SLIDER И ДЕКОРАТИВНЫЕ УЛУЧШЕНИЯ
+/* 18. ДЕКОРАТИВНЫЕ УЛУЧШЕНИЯ
    ========================================== */
 .hero {
-    padding: 0;
-    margin: 0;
-    position: relative;
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0;
     border-radius: 0 0 50px 50px;
     margin-bottom: 40px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    overflow: hidden;
-}
-
-@keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-.hero::before {
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    animation: rotate 20s linear infinite;
-    z-index: 1;
-    pointer-events: none;
-}
-
-@keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.hero .container {
-    position: relative;
-    z-index: 2;
 }
 
 .hero h1,
@@ -770,42 +733,154 @@ body.dark-theme #confirmModal p {
     text-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-.hero h1 {
-    background: linear-gradient(135deg, #fff 0%, #e0cffc 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 800;
-    animation: fadeInUp 0.7s ease-out both;
-}
-
-.hero p {
-    animation: fadeInUp 0.7s 0.15s ease-out both;
-}
-
 .hero .btn {
-    background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
-    background-size: 200% 200%;
-    animation: gradientShift 3s ease infinite, fadeInUp 0.7s 0.3s ease-out both;
-    border: none;
-    color: white !important;
-    font-weight: bold;
-    letter-spacing: 0.5px;
+    background: white;
+    color: #4a235a !important;
+    font-weight: 600;
     box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-}
-
-@keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    border: 2px solid white;
+    transition: all 0.3s ease;
 }
 
 .hero .btn:hover {
+    background: transparent;
+    color: white !important;
+    border-color: white;
     transform: translateY(-5px);
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
-/* Слайдер */
+body.dark-theme .hero .btn {
+    background: #2e67a0;
+    color: #ecf0f1 !important;
+    border-color: #ecf0f1;
+}
+
+body.dark-theme .hero .btn:hover {
+    background: #ecf0f1;
+    color: #2c3e50 !important;
+}
+
+h2 {
+    position: relative;
+    padding-bottom: 12px;
+    margin-bottom: 25px;
+}
+
+h2:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 70px;
+    height: 4px;
+    background: linear-gradient(90deg, #3498db, #9b59b6);
+    border-radius: 4px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body.dark-theme .btn:not(.btn-danger) {
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+}
+
+body.dark-theme .btn:hover:not(.btn-danger) {
+    box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);
+}
+
+body.dark-theme .btn-danger:hover {
+    box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
+}
+
+body:not(.dark-theme) {
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.03) 0%, transparent 50%);
+    background-attachment: fixed;
+}
+
+.quick-add-small {
+    transition: all 0.2s ease;
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(4px);
+}
+
+.quick-add-small:hover {
+    background: #3498db !important;
+    color: white !important;
+    transform: scale(1.2) rotate(90deg);
+}
+
+body:not(.dark-theme) .hero h1,
+body:not(.dark-theme) .hero p {
+    color: white !important;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Исправление цветов в светлой теме */
+body:not(.dark-theme) h1,
+body:not(.dark-theme) h2,
+body:not(.dark-theme) h3,
+body:not(.dark-theme) p,
+body:not(.dark-theme) span,
+body:not(.dark-theme) a,
+body:not(.dark-theme) li,
+body:not(.dark-theme) label {
+    color: #2c3e50;
+}
+
+body:not(.dark-theme) header {
+    background: #2c3e50 !important;
+}
+
+body:not(.dark-theme) .logo a,
+body:not(.dark-theme) nav ul li a {
+    color: #ecf0f1 !important;
+}
+
+body:not(.dark-theme) .price {
+    color: #27ae60 !important;
+}
+
+body:not(.dark-theme) .btn {
+    background: #3498db;
+    color: white !important;
+}
+
+body:not(.dark-theme) .btn-danger {
+    background: #e74c3c;
+    color: white !important;
+}
+
+body:not(.dark-theme) .filter-btn {
+    background: #ecf0f1;
+    color: #2c3e50 !important;
+}
+
+body:not(.dark-theme) .filter-btn.active {
+    background: #3498db;
+    color: white !important;
+}
+
+body:not(.dark-theme) .cart-table th {
+    background: #f8f9fa;
+    color: #2c3e50 !important;
+}
+
+body:not(.dark-theme) .notification {
+    background: white;
+    color: #2c3e50 !important;
+}
+
+/* ==================== HERO SLIDER ==================== */
+.hero {
+    padding: 0;
+    margin: 0;
+    position: relative;
+}
+
 .hero-slider {
     position: relative;
     width: 100%;
@@ -866,18 +941,36 @@ body.dark-theme #confirmModal p {
 .slide-content h1 {
     font-size: 3rem;
     margin-bottom: 1rem;
+    animation: fadeInUp 0.6s ease-out;
 }
 
 .slide-content p {
     font-size: 1.5rem;
     margin-bottom: 2rem;
+    animation: fadeInUp 0.6s 0.2s ease-out both;
 }
 
+.slide-content .btn {
+    animation: fadeInUp 0.6s 0.4s ease-out both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Кнопки навигации */
 .slider-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255,255,255,0.3);
+    background: rgba(255, 255, 255, 0.3);
     color: white;
     border: none;
     width: 50px;
@@ -895,13 +988,19 @@ body.dark-theme #confirmModal p {
 }
 
 .slider-btn:hover {
-    background: rgba(255,255,255,0.6);
+    background: rgba(255, 255, 255, 0.6);
     transform: translateY(-50%) scale(1.1);
 }
 
-.prev { left: 20px; }
-.next { right: 20px; }
+.prev {
+    left: 20px;
+}
 
+.next {
+    right: 20px;
+}
+
+/* Точки-индикаторы */
 .slider-dots {
     position: absolute;
     bottom: 20px;
@@ -915,7 +1014,7 @@ body.dark-theme #confirmModal p {
 .dot {
     width: 12px;
     height: 12px;
-    background: rgba(255,255,255,0.5);
+    background: rgba(255, 255, 255, 0.5);
     border-radius: 50%;
     cursor: pointer;
     transition: background 0.3s, transform 0.2s;
@@ -927,409 +1026,24 @@ body.dark-theme #confirmModal p {
 }
 
 .dot:hover {
-    background: rgba(255,255,255,0.9);
+    background: rgba(255, 255, 255, 0.9);
 }
 
+/* Адаптивность слайдера */
 @media (max-width: 768px) {
     .hero-slider {
         height: 50vh;
         min-height: 350px;
     }
-    .slide-content h1 { font-size: 2rem; }
-    .slide-content p  { font-size: 1.2rem; }
-    .slider-btn { width: 40px; height: 40px; font-size: 22px; }
+    .slide-content h1 {
+        font-size: 2rem;
+    }
+    .slide-content p {
+        font-size: 1.2rem;
+    }
+    .slider-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 22px;
+    }
 }
-
-/* Дополнительные визуальные штрихи */
-h2 {
-    position: relative;
-    padding-bottom: 12px;
-    margin-bottom: 25px;
-}
-
-h2:after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 70px;
-    height: 4px;
-    background: linear-gradient(90deg, #3498db, #9b59b6);
-    border-radius: 4px;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-body:not(.dark-theme) {
-    background-image: 
-        radial-gradient(circle at 20% 50%, rgba(102,126,234,0.03) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(118,75,162,0.03) 0%, transparent 50%);
-    background-attachment: fixed;
-}
-
-/* Кастомный скроллбар */
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-::-webkit-scrollbar-thumb { background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: linear-gradient(45deg, #764ba2, #667eea); }
-body.dark-theme ::-webkit-scrollbar-track { background: #2c2c2c; }
-
-
-/* ==========================================
-   БОГ ВИЗУАЛА: ТОТАЛЬНЫЕ АНИМАЦИИ
-   ========================================== */
-
-/* ---------- БАЗОВЫЕ ПЕРЕХОДЫ ДЛЯ ВСЕГО ---------- */
-* {
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-/* ---------- КАРТОЧКИ ТОВАРОВ: ПАРЕНИЕ И ГЛУБИНА ---------- */
-.product-card {
-    transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1),
-                box-shadow 0.35s ease,
-                border-color 0.3s;
-    will-change: transform, box-shadow;
-    border: 2px solid transparent;
-}
-
-.product-card:hover {
-    transform: translateY(-12px) scale(1.02);
-    box-shadow: 0 30px 50px -10px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(102, 126, 234, 0.3);
-    border-color: rgba(102, 126, 234, 0.5);
-}
-
-/* ---------- КНОПКИ: НАЖАТИЕ, СВЕЧЕНИЕ, ГРАДИЕНТ ---------- */
-.btn {
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
-    will-change: transform;
-}
-
-.btn::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    transform: translate(-50%, -50%);
-    transition: width 0.4s, height 0.4s;
-}
-
-.btn:active::before {
-    width: 200px;
-    height: 200px;
-}
-
-.btn:active {
-    transform: scale(0.96);
-}
-
-.btn:hover {
-    box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);
-}
-
-/* Кнопка "плюс" на карточке */
-.quick-add {
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.quick-add:hover {
-    transform: scale(1.3) rotate(180deg) !important;
-    box-shadow: 0 0 25px #3498db;
-}
-
-/* Кнопки в корзине */
-.quantity-control button {
-    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
-}
-.quantity-control button:hover {
-    background: #3498db !important;
-    color: white;
-    transform: scale(1.15);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-/* ---------- ССЫЛКИ: ПЛАВНОЕ ПОДЧЁРКИВАНИЕ ---------- */
-a:not(.btn):not(.logo a):not(.cart-product-link) {
-    position: relative;
-    transition: color 0.2s;
-}
-a:not(.btn):not(.logo a)::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    bottom: -4px;
-    left: 0;
-    background: currentColor;
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.3s ease;
-}
-a:not(.btn):not(.logo a):hover::after {
-    transform: scaleX(1);
-    transform-origin: left;
-}
-
-/* ---------- ПОЛЯ ВВОДА: ФОКУС И АНИМАЦИЯ ---------- */
-input, textarea, select {
-    transition: border 0.2s, box-shadow 0.2s, background 0.2s;
-}
-input:focus, textarea:focus, select:focus {
-    border-color: #3498db !important;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-    outline: none;
-}
-
-/* ---------- МОДАЛЬНЫЕ ОКНА: ПОЯВЛЕНИЕ И РАЗМЫТИЕ ---------- */
-.modal {
-    backdrop-filter: blur(8px);
-}
-.modal-content {
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    transform: scale(0.9);
-    animation: modalPop 0.3s forwards;
-}
-@keyframes modalPop {
-    to { transform: scale(1); }
-}
-
-/* ---------- УВЕДОМЛЕНИЯ: ВЛЁТ И УПРУГОСТЬ ---------- */
-.notification {
-    animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-@keyframes slideIn {
-    0% { transform: translateX(120%) scale(0.8); opacity: 0; }
-    80% { transform: translateX(-5%) scale(1.02); }
-    100% { transform: translateX(0) scale(1); opacity: 1; }
-}
-
-/* ---------- ФИЛЬТРЫ: МЯГКОЕ ПЕРЕКЛЮЧЕНИЕ ---------- */
-.filter-btn {
-    transition: background 0.25s, color 0.25s, transform 0.15s, box-shadow 0.2s;
-}
-.filter-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 7px 14px rgba(0,0,0,0.1);
-}
-.filter-btn.active {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(52, 152, 219, 0.4);
-}
-
-/* ---------- ИКОНКИ В АДМИНКЕ: УВЕЛИЧЕНИЕ ---------- */
-.btn-small {
-    transition: transform 0.15s, box-shadow 0.2s;
-}
-.btn-small:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-/* ---------- ЧЕКБОКСЫ И РАДИО: АНИМАЦИЯ ОТМЕТКИ ---------- */
-input[type="checkbox"] {
-    transition: transform 0.1s, box-shadow 0.2s;
-    cursor: pointer;
-}
-input[type="checkbox"]:hover {
-    transform: scale(1.1);
-}
-input[type="checkbox"]:checked {
-    animation: checkPop 0.2s ease;
-}
-@keyframes checkPop {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.3); }
-    100% { transform: scale(1); }
-}
-
-/* ---------- СЛАЙДЕР: ПЛАВНОСТЬ СТРЕЛОК ---------- */
-.slider-btn {
-    transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
-}
-.slider-btn:hover {
-    box-shadow: 0 0 20px rgba(255,255,255,0.6);
-}
-
-/* ---------- ТЁМНАЯ ТЕМА: ДОПОЛНИТЕЛЬНЫЕ АНИМАЦИИ ---------- */
-body.dark-theme .product-card:hover {
-    box-shadow: 0 30px 50px -10px rgba(0, 0, 0, 0.5), 0 0 0 2px #3498db;
-}
-
-
-
-/* ==========================================
-   УЛЬТРА-ВИЗУАЛ: АНИМАЦИИ ВСЕГО И ВСЯ
-   ========================================== */
-
-/* 1. Параллакс при наведении на карточку товара */
-.product-card {
-    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), 
-                box-shadow 0.4s ease, 
-                border-color 0.3s;
-    transform-style: preserve-3d;
-    perspective: 1000px;
-}
-.product-card:hover {
-    transform: translateY(-15px) rotateX(2deg) rotateY(1deg);
-    box-shadow: 0 40px 60px -15px rgba(0,0,0,0.25), 0 0 0 3px rgba(102,126,234,0.4);
-}
-
-/* 2. Кнопки с 3D эффектом нажатия */
-.btn {
-    transform: translateY(0) scale(1);
-    box-shadow: 0 8px 0 #1a5276, 0 4px 8px rgba(0,0,0,0.2);
-    transition: all 0.1s ease;
-}
-.btn:active {
-    transform: translateY(6px) scale(0.98);
-    box-shadow: 0 2px 0 #1a5276, 0 2px 4px rgba(0,0,0,0.1);
-}
-.btn-danger {
-    box-shadow: 0 8px 0 #7b241c, 0 4px 8px rgba(0,0,0,0.2);
-}
-.btn-danger:active {
-    box-shadow: 0 2px 0 #7b241c, 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* 3. Пульсация кнопки "В корзину" на карточках */
-.quick-add-small {
-    animation: softPulse 2.5s infinite;
-}
-@keyframes softPulse {
-    0% { box-shadow: 0 0 0 0 rgba(52,152,219,0.4); }
-    70% { box-shadow: 0 0 0 12px rgba(52,152,219,0); }
-    100% { box-shadow: 0 0 0 0 rgba(52,152,219,0); }
-}
-
-/* 4. Мерцание фона у активного фильтра */
-.filter-btn.active {
-    animation: glowPulse 3s infinite;
-}
-@keyframes glowPulse {
-    0% { box-shadow: 0 0 5px #3498db; }
-    50% { box-shadow: 0 0 20px #3498db, 0 0 5px #2ecc71; }
-    100% { box-shadow: 0 0 5px #3498db; }
-}
-
-/* 5. Плавное появление контента при загрузке страницы */
-main, .products-grid, .cart-table, .admin-container {
-    animation: contentFade 0.8s ease-out;
-}
-@keyframes contentFade {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* 6. Эффект печатающей машинки для заголовков в hero */
-.hero h1 {
-    overflow: hidden;
-    border-right: 3px solid white;
-    white-space: nowrap;
-    margin: 0 auto;
-    animation: typing 3s steps(30, end), blinkCaret 0.75s step-end infinite;
-}
-@keyframes typing {
-    from { width: 0 }
-    to { width: 100% }
-}
-@keyframes blinkCaret {
-    from, to { border-color: transparent }
-    50% { border-color: white }
-}
-
-/* 7. Вращение иконки корзины при добавлении товара (если добавить класс) */
-.cart-link i, .cart-link span {
-    transition: transform 0.3s;
-}
-.cart-link:active i {
-    transform: rotate(15deg) scale(1.2);
-}
-
-/* 8. Размытие фона при открытии модального окна (уже есть, усиливаем) */
-.modal {
-    backdrop-filter: blur(12px) saturate(180%);
-    background: rgba(0,0,0,0.3);
-}
-
-/* 9. Тени у таблиц при наведении на строку */
-.cart-table tbody tr, .products-table tbody tr {
-    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
-}
-.cart-table tbody tr:hover, .products-table tbody tr:hover {
-    background: rgba(52,152,219,0.05);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transform: scale(1.005);
-}
-body.dark-theme .cart-table tbody tr:hover,
-body.dark-theme .products-table tbody tr:hover {
-    background: rgba(52,152,219,0.1);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-}
-
-/* 10. Иконки в уведомлениях — покачивание */
-.notification .icon {
-    animation: swing 1s ease-in-out;
-}
-@keyframes swing {
-    0% { transform: rotate(0deg); }
-    25% { transform: rotate(10deg); }
-    50% { transform: rotate(-5deg); }
-    75% { transform: rotate(3deg); }
-    100% { transform: rotate(0deg); }
-}
-
-/* 11. Анимация появления точек слайдера */
-.dot {
-    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-}
-.dot.active {
-    transform: scale(1.5);
-    background: #f39c12;
-}
-
-/* 12. Живой градиент у фона в тёмной теме */
-body.dark-theme {
-    background: linear-gradient(145deg, #141e30, #243b55);
-    background-size: 200% 200%;
-    animation: darkBgMove 20s ease infinite;
-}
-@keyframes darkBgMove {
-    0% { background-position: 0% 0%; }
-    50% { background-position: 100% 100%; }
-    100% { background-position: 0% 0%; }
-}
-
-/* 13. Эффект размытого стекла для шапки в светлой теме */
-header {
-    backdrop-filter: blur(5px);
-    background: rgba(44,62,80,0.9);
-}
-body.dark-theme header {
-    background: rgba(30,42,58,0.9);
-    backdrop-filter: blur(8px);
-}
-
-/* 14. Анимация загрузки изображений */
-.product-card img {
-    transition: transform 0.5s ease, filter 0.5s ease;
-}
-.product-card:hover img {
-    transform: scale(1.05);
-    filter: brightness(1.05);
-}
-
-/* 15. Плавное изменение цвета placeholder */
-::placeholder {
-    transition: color 0.2s;
-}
-input:focus::placeholder {
-    color: transparent;
-}
-
