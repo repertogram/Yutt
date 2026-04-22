@@ -40,7 +40,7 @@ function checkAuth() {
         loginBlock.style.display = 'none';
         adminPanel.style.display = 'block';
         renderProductsTable();
-        showProductsPanel(); // ← добавлено
+        showProductsPanel(); 
     } else {
         loginBlock.style.display = 'block';
         adminPanel.style.display = 'none';
@@ -94,7 +94,9 @@ function renderProductsTable() {
                 <!-- Кнопка удаления -->
                 <button class="btn-small btn-danger" data-id="${p.id}" data-action="delete">Уд.</button>
             </td>
-            <td>${p.featured ? '✅' : '❌'}</td>
+<td style="text-align: center; cursor: pointer;" data-featured-id="${p.id}">
+    ${p.featured ? '✅' : '❌'}
+</td>
         `;
         tableBody.appendChild(row);                // Добавляем строку в таблицу
     });
@@ -309,6 +311,28 @@ document.addEventListener('DOMContentLoaded', () => {
 orderModal = document.getElementById('orderModal');
 closeModalBtn = document.getElementById('closeModalBtn');
 modalBody = document.getElementById('modalBody');
+// ==================== БЫСТРОЕ ПЕРЕКЛЮЧЕНИЕ FEATURED ====================
+document.addEventListener('click', async (e) => {
+    const target = e.target.closest('td[data-featured-id]');
+    if (!target) return;
+    
+    const productId = parseInt(target.dataset.featuredId);
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    
+    const newFeatured = !product.featured;
+    const success = await updateProduct(productId, { featured: newFeatured });
+    
+    if (success) {
+        renderProductsTable();
+        showNotification(
+            `Товар "${product.name}" ${newFeatured ? 'добавлен на' : 'убран с'} главной`,
+            'info'
+        );
+    } else {
+        showNotification('Не удалось изменить статус', 'error');
+    }
+});
 // Обработчики модального окна
 if (orderModal) {
     // Закрытие по клику на крестик
