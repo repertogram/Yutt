@@ -1,140 +1,192 @@
 /*
  * ==========================================
  * ИНТЕРНЕТ-МАГАЗИН "УЮТ" - ОСНОВНЫЕ СТИЛИ
+ * версия для курсовой работы
  * ==========================================
  */
 
-/* 1. СБРОС И БАЗОВЫЕ СТИЛИ
-   ========================================== */
+/* ----- 1. СБРОС И БАЗОВЫЕ НАСТРОЙКИ ----- */
 * {
-    box-sizing: border-box;
+    /* Убираем все внешние и внутренние отступы, чтобы всё контролировать самому */
     margin: 0;
     padding: 0;
+    /* Ширина и высота включают padding и border – так проще считать размеры */
+    box-sizing: border-box;
 }
 
 body {
+    /* Основной шрифт – системный, без засечек, везде смотрится аккуратно */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Светлый фон по умолчанию */
     background: #f9f9f9;
+    /* Тёмно-серый текст – не чисто чёрный, мягче для глаз */
     color: #333;
+    /* Межстрочный интервал для читаемости */
     line-height: 1.6;
 }
 
-/* 2. ТИПОГРАФИКА И КОНТЕЙНЕРЫ
-   ========================================== */
+/* ----- 2. КОНТЕЙНЕР-ЦЕНТРОВЩИК ----- */
 .container {
+    /* Максимальная ширина контента */
     max-width: 1200px;
+    /* Центрирование по горизонтали */
     margin: 0 auto;
+    /* Отступы по бокам, чтобы на мобильных не прилипало */
     padding: 0 20px;
 }
 
-/* 3. ШАПКА (HEADER)
-   ========================================== */
+/* ----- 3. ШАПКА САЙТА ----- */
 header {
+    /* Тёмно-синий фон, солидно */
     background: #2c3e50;
+    /* Белый текст */
     color: #fff;
+    /* Вертикальные отступы */
     padding: 15px 0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    /* Лёгкая тень отделяет шапку от контента */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 header .container {
+    /* Flex-контейнер: логотип, меню и кнопка темы в одну линию */
     display: flex;
+    /* Разносим элементы по краям */
     justify-content: space-between;
+    /* Выравниваем по вертикали */
     align-items: center;
 }
 
 .logo a {
+    /* Белый цвет логотипа */
     color: #fff;
+    /* Убираем подчёркивание */
     text-decoration: none;
+    /* Крупный шрифт */
     font-size: 28px;
+    /* Жирное начертание */
     font-weight: bold;
 }
 
 nav ul {
+    /* Убираем маркеры списка */
     list-style: none;
+    /* Пункты меню в ряд */
     display: flex;
+    /* Расстояние между пунктами */
     gap: 25px;
 }
 
 nav ul li a {
+    /* Светло-серый цвет ссылок */
     color: #ecf0f1;
+    /* Без подчёркивания */
     text-decoration: none;
+    /* Полужирный шрифт */
     font-weight: 500;
+    /* Плавная смена цвета при наведении */
     transition: color 0.3s;
 }
 
 nav ul li a:hover {
+    /* При наведении – оранжевый акцент */
     color: #f39c12;
 }
 
 .cart-link {
+    /* Чтобы счётчик товаров позиционировался относительно ссылки */
     position: relative;
 }
 
 .cart-count {
+    /* Красный кружок счётчика */
     background: #e74c3c;
     color: white;
     border-radius: 50%;
+    /* Отступы внутри кружка */
     padding: 2px 6px;
+    /* Мелкий шрифт */
     font-size: 12px;
+    /* Отступ слева от слова "Корзина" */
     margin-left: 5px;
 }
 
-/* 4. ОСНОВНОЙ КОНТЕНТ (MAIN)
-   ========================================== */
+/* ----- 4. ОСНОВНОЙ КОНТЕНТ ----- */
 main {
+    /* Минимальная высота, чтобы футер не прилипал к верху при пустой странице */
     min-height: 70vh;
+    /* Вертикальные отступы */
     padding: 30px 0;
 }
 
-/* 5. КАРТОЧКИ ТОВАРОВ (PRODUCTS)
-   ========================================== */
+/* ----- 5. КАРТОЧКИ ТОВАРОВ ----- */
 .products-grid {
+    /* Grid-сетка: карточки распределяются автоматически, минимальная ширина 250px */
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    /* Расстояние между карточками */
     gap: 25px;
+    /* Отступ сверху от заголовка */
     margin-top: 30px;
 }
 
 .product-card {
+    /* Белый фон */
     background: white;
+    /* Скруглённые углы */
     border-radius: 12px;
+    /* Прячем всё, что выходит за границы (например, края картинки) */
     overflow: hidden;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+    /* Лёгкая тень */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    /* Плавные анимации при наведении */
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
                 box-shadow 0.3s ease;
+    /* Анимация появления при загрузке */
     animation: fadeInUp 0.6s ease forwards;
+    /* Изначально карточка прозрачна, анимация делает её видимой */
     opacity: 0;
 }
 
 .product-card:hover {
+    /* Приподнимаем карточку и усиливаем тень */
     transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
 }
 
 .product-card img {
+    /* Картинка на всю ширину карточки */
     width: 100%;
+    /* Фиксированная высота */
     height: 200px;
+    /* Картинка масштабируется и обрезается по размеру блока */
     object-fit: cover;
+    /* Заглушка серого цвета на время загрузки */
     background: #ddd;
 }
 
 .product-info {
+    /* Отступы внутри блока с текстом */
     padding: 10px;
 }
 
 .product-info h3 {
+    /* Размер названия товара */
     font-size: 18px;
+    /* Отступ снизу */
     margin-bottom: 5px;
 }
 
 .product-info .price {
+    /* Цена крупнее и жирнее */
     font-size: 20px;
     font-weight: bold;
+    /* Зелёный цвет для цены */
     color: #27ae60;
+    /* Небольшие отступы сверху и снизу */
     margin: 5px 0;
 }
 
-/* Анимация появления карточек */
+/* Анимация появления карточек – выезд снизу */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -146,7 +198,7 @@ main {
     }
 }
 
-/* Последовательная задержка */
+/* Чтобы карточки появлялись по очереди, задаём задержку */
 .product-card:nth-child(1) { animation-delay: 0.05s; }
 .product-card:nth-child(2) { animation-delay: 0.10s; }
 .product-card:nth-child(3) { animation-delay: 0.15s; }
@@ -156,87 +208,118 @@ main {
 .product-card:nth-child(7) { animation-delay: 0.35s; }
 .product-card:nth-child(8) { animation-delay: 0.40s; }
 .product-card:nth-child(9) { animation-delay: 0.45s; }
-.product-card:nth-child(10) { animation-delay: 0.50s; }
+.product-card:nth-child(10){ animation-delay: 0.50s; }
 
-/* 6. КНОПКИ (BUTTONS)
-   ========================================== */
+/* ----- 6. КНОПКИ ----- */
 .btn {
+    /* Строчно-блочный элемент */
     display: inline-block;
+    /* Синий фон */
     background: #3498db;
+    /* Белый текст */
     color: white;
+    /* Внутренние отступы */
     padding: 8px 16px;
+    /* Скруглённые углы */
     border-radius: 4px;
+    /* Убираем подчёркивание у ссылок */
     text-decoration: none;
+    /* Убираем рамку у кнопок */
     border: none;
+    /* Курсор-рука */
     cursor: pointer;
+    /* Размер шрифта */
     font-size: 14px;
+    /* Плавное изменение фона и тени */
     transition: background 0.3s, box-shadow 0.3s;
 }
 
 .btn:hover {
+    /* При наведении фон темнее */
     background: #2980b9;
 }
 
 .btn-danger {
+    /* Красный фон для опасных действий (удаление) */
     background: #981b1b;
 }
 
 .btn-danger:hover {
+    /* Темнее при наведении */
     background: #631212;
 }
 
-/* 7. ФИЛЬТРЫ В КАТАЛОГЕ (FILTERS)
-   ========================================== */
+/* ----- 7. ФИЛЬТРЫ В КАТАЛОГЕ ----- */
 .filters {
+    /* Отступ снизу от кнопок фильтров */
     margin-bottom: 20px;
 }
 
 .filter-btn {
+    /* Светло-серый фон */
     background: #ecf0f1;
+    /* Без рамки */
     border: none;
+    /* Внутренние отступы */
     padding: 8px 16px;
+    /* Отступ справа между кнопками */
     margin-right: 10px;
+    /* Скруглённые края (капсула) */
     border-radius: 20px;
     cursor: pointer;
+    /* Плавные переходы */
     transition: all 0.3s;
 }
 
 .filter-btn.active {
+    /* Активный фильтр – синий фон, белый текст */
     background: #3498db;
     color: white;
 }
 
-/* 8. КОРЗИНА (CART)
-   ========================================== */
+/* ----- 8. КОРЗИНА ----- */
 .cart-table {
+    /* Таблица на всю ширину */
     width: 100%;
+    /* Убираем двойные границы между ячейками */
     border-collapse: collapse;
+    /* Белый фон */
     background: white;
+    /* Скруглённые углы */
     border-radius: 8px;
+    /* Прячем всё, что выходит за скругления */
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    /* Лёгкая тень */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .cart-table th,
 .cart-table td {
+    /* Внутренние отступы в ячейках */
     padding: 15px;
+    /* Выравнивание текста влево */
     text-align: left;
+    /* Разделительная линия снизу */
     border-bottom: 1px solid #eee;
 }
 
 .cart-table th {
+    /* Светло-серый фон заголовков */
     background: #f8f9fa;
 }
 
 .quantity-control {
+    /* Flex-контейнер для кнопок изменения количества */
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .quantity-control button {
+    /* Квадратные кнопки */
     width: 28px;
     height: 28px;
+    /* Серый фон */
     background: #ddd;
     border: none;
     border-radius: 4px;
@@ -244,25 +327,32 @@ main {
 }
 
 .cart-total {
+    /* Выравнивание итоговой суммы вправо */
     text-align: right;
+    /* Крупный шрифт */
     font-size: 24px;
+    /* Отступы сверху и снизу */
     margin: 20px 0;
 }
 
-/* 9. ТЁМНАЯ ТЕМА (DARK THEME)
-   ========================================== */
+/* ----- 9. ТЁМНАЯ ТЕМА ----- */
 body.dark-theme {
+    /* Тёмный фон */
     background: #1a1a1a;
+    /* Светло-серый текст */
     color: #e0e0e0;
 }
 
 body.dark-theme header {
+    /* Более тёмный оттенок шапки */
     background: #1e2a3a;
 }
 
 body.dark-theme .product-card {
+    /* Тёмный фон карточек */
     background: #2c2c2c;
-    box-shadow: 0 3px 10px rgba(255,255,255,0.05);
+    /* Светлая тень для контраста */
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.05);
 }
 
 body.dark-theme .cart-table {
@@ -300,10 +390,11 @@ body.dark-theme .modal-content {
     color: #e0e0e0;
 }
 
-/* 10. КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ
-   ========================================== */
+/* ----- 10. КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ ----- */
 .theme-toggle {
+    /* Прозрачный фон */
     background: none;
+    /* Рамка цвета текущего текста */
     border: 1px solid currentColor;
     color: inherit;
     padding: 5px 10px;
@@ -315,19 +406,20 @@ body.dark-theme .modal-content {
 }
 
 .theme-toggle:hover {
-    background: rgba(255,255,255,0.1);
+    /* Лёгкое затемнение при наведении */
+    background: rgba(255, 255, 255, 0.1);
 }
 
 body.dark-theme .theme-toggle {
     border-color: #aaa;
 }
 
-/* 11. ССЫЛКА НА ТОВАР В КОРЗИНЕ
-   ========================================== */
+/* ----- 11. ССЫЛКА НА ТОВАР В КОРЗИНЕ (с анимацией подчёркивания) ----- */
 .cart-product-link {
     color: #2c3e50;
     text-decoration: none;
     font-weight: 500;
+    /* Для позиционирования псевдоэлемента */
     position: relative;
     transition: color 0.2s;
 }
@@ -340,6 +432,7 @@ body.dark-theme .theme-toggle {
     bottom: -2px;
     left: 0;
     background-color: #3498db;
+    /* Изначально линия сжата */
     transform: scaleX(0);
     transform-origin: bottom right;
     transition: transform 0.3s ease-out;
@@ -350,6 +443,7 @@ body.dark-theme .theme-toggle {
 }
 
 .cart-product-link:hover::after {
+    /* При наведении линия разворачивается */
     transform: scaleX(1);
     transform-origin: bottom left;
 }
@@ -366,10 +460,11 @@ body.dark-theme .cart-product-link::after {
     background-color: #5dade2;
 }
 
-/* 12. ОБЁРТКА ИЗОБРАЖЕНИЯ И КНОПКА "ПЛЮС"
-   ========================================== */
+/* ----- 12. КНОПКА "ПЛЮС" НА КАРТОЧКЕ (быстрое добавление в корзину) ----- */
 .product-image-wrapper {
+    /* Контекст для абсолютного позиционирования кнопки */
     position: relative;
+    /* Не обрезаем кнопку, если она выходит за границы */
     overflow: visible;
 }
 
@@ -381,31 +476,43 @@ body.dark-theme .cart-product-link::after {
 }
 
 .quick-add {
+    /* Абсолютное позиционирование */
     position: absolute;
+    /* Располагаем под картинкой (на границе) */
     top: 230px;
     right: 10px;
+    /* Размеры */
     width: 36px;
     height: 36px;
+    /* Почти белый фон */
     background: #f8f8f8;
+    /* Серая рамка */
     border: 1px solid #bdc3c7;
     border-radius: 50%;
+    /* Крупный плюс */
     font-size: 28px;
     font-weight: 300;
     color: #2c3e50;
+    /* Центрируем символ */
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    /* Тень */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    /* Плавные переходы */
     transition: all 0.2s ease;
     line-height: 1;
     padding: 0;
+    /* Размытие фона под кнопкой */
     backdrop-filter: blur(4px);
 }
 
 .quick-add:hover {
+    /* Синий фон при наведении */
     background: #3498db;
     color: white;
+    /* Увеличение */
     transform: scale(1.1);
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
 }
@@ -420,36 +527,43 @@ body.dark-theme .quick-add:hover {
     color: #1a1a1a;
 }
 
-/* 13. УВЕДОМЛЕНИЯ (NOTIFICATIONS)
-   ========================================== */
+/* ----- 13. УВЕДОМЛЕНИЯ (всплывающие сообщения) ----- */
 .notification {
+    /* Минимальная и максимальная ширина */
     min-width: 250px;
     max-width: 350px;
+    /* Белый фон */
     background: white;
     border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    /* Тень */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     margin-bottom: 10px;
     padding: 15px 20px;
+    /* Flex для иконки и текста */
     display: flex;
     align-items: center;
     gap: 12px;
+    /* Начальное положение за экраном */
     transform: translateX(120%);
+    /* Анимация выезда */
     animation: slideIn 0.3s forwards;
+    /* Цветная полоса слева (по умолчанию зелёная - успех) */
     border-left: 4px solid #2ecc71;
     color: #2c3e50;
+    /* Размытие фона */
     backdrop-filter: blur(8px);
 }
 
 .notification.error {
-    border-left-color: #e74c3c;
+    border-left-color: #e74c3c;   /* красная полоса */
 }
 
 .notification.warning {
-    border-left-color: #f39c12;
+    border-left-color: #f39c12;   /* оранжевая полоса */
 }
 
 .notification.info {
-    border-left-color: #3498db;
+    border-left-color: #3498db;   /* синяя полоса */
 }
 
 .notification .icon {
@@ -479,7 +593,7 @@ body.dark-theme .quick-add:hover {
 }
 
 .notification .close-btn:hover {
-    background: rgba(0,0,0,0.05);
+    background: rgba(0, 0, 0, 0.05);
     color: #2c3e50;
 }
 
@@ -494,7 +608,7 @@ body.dark-theme .quick-add:hover {
 body.dark-theme .notification {
     background: #2c2c2c;
     color: #ecf0f1;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
 body.dark-theme .notification .close-btn {
@@ -502,25 +616,31 @@ body.dark-theme .notification .close-btn {
 }
 
 body.dark-theme .notification .close-btn:hover {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     color: #fff;
 }
 
-/* 14. МОДАЛЬНЫЕ ОКНА
-   ========================================== */
+/* ----- 14. МОДАЛЬНЫЕ ОКНА (просмотр заказа) ----- */
 .modal {
     transition: opacity 0.2s;
 }
 
 .modal-content {
+    /* Анимация появления */
     animation: modalFadeIn 0.2s;
     background: white;
     color: #2c3e50;
 }
 
 @keyframes modalFadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 body.dark-theme .modal-content {
@@ -539,15 +659,14 @@ body.dark-theme #closeModalBtn {
     color: #aaa !important;
 }
 
-/* 15. МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ
-   ========================================== */
+/* ----- 15. МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ ----- */
 #confirmModal > div {
     background: white;
     border-radius: 8px;
     padding: 25px;
     max-width: 400px;
     width: 90%;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
 
 #confirmModal p {
@@ -564,7 +683,6 @@ body.dark-theme #confirmModal p {
     color: #e0e0e0 !important;
 }
 
-/* Специфичные стили для кнопок в модальном окне подтверждения */
 #confirmYes,
 #confirmNo {
     display: inline-block;
@@ -583,7 +701,6 @@ body.dark-theme #confirmModal p {
 #confirmYes {
     background: #e74c3c !important;
 }
-
 #confirmYes:hover {
     background: #c0392b !important;
 }
@@ -591,31 +708,33 @@ body.dark-theme #confirmModal p {
 #confirmNo {
     background: #95a5a6 !important;
 }
-
 #confirmNo:hover {
     background: #7f8c8d !important;
 }
 
-/* 16. АДАПТАЦИЯ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ
-   ========================================== */
+/* ----- 16. АДАПТАЦИЯ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ ----- */
 @media (max-width: 768px) {
     header .container {
+        /* На узких экранах шапка становится вертикальной */
         flex-direction: column;
         gap: 10px;
     }
 
     nav ul {
+        /* Меню переносится на несколько строк */
         flex-wrap: wrap;
         justify-content: center;
         gap: 15px;
     }
 
     .products-grid {
+        /* Две карточки в ряд */
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
     }
 
     .product-card img {
+        /* Уменьшаем высоту картинки */
         height: 150px;
     }
 
@@ -640,6 +759,7 @@ body.dark-theme #confirmModal p {
     }
 
     .cart-table {
+        /* Таблицу можно скроллить по горизонтали */
         display: block;
         overflow-x: auto;
         white-space: nowrap;
@@ -685,6 +805,7 @@ body.dark-theme #confirmModal p {
 
 @media (max-width: 480px) {
     .products-grid {
+        /* На очень узких экранах – одна колонка */
         grid-template-columns: 1fr;
     }
 
@@ -704,40 +825,41 @@ body.dark-theme #confirmModal p {
     }
 }
 
-/* 17. ИНТЕРАКТИВНЫЕ ЭЛЕМЕНТЫ
-   ========================================== */
+/* ----- 17. ИНТЕРАКТИВНЫЕ ЭЛЕМЕНТЫ В АДМИНКЕ (клик по иконке featured) ----- */
 .products-table td[data-featured-id] {
     transition: transform 0.15s, opacity 0.15s;
     cursor: pointer;
 }
 
 .products-table td[data-featured-id]:hover {
+    /* При наведении иконка немного увеличивается */
     transform: scale(1.3);
     opacity: 0.8;
 }
 
-/* 18. ДЕКОРАТИВНЫЕ УЛУЧШЕНИЯ
-   ========================================== */
+/* ----- 18. HERO-СЕКЦИЯ И СЛАЙДЕР НА ГЛАВНОЙ ----- */
 .hero {
+    /* Градиентный фон */
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 60px 0;
+    /* Скругление снизу */
     border-radius: 0 0 50px 50px;
     margin-bottom: 40px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .hero h1,
 .hero p {
     color: white !important;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .hero .btn {
     background: white;
     color: #4a235a !important;
     font-weight: 600;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     border: 2px solid white;
     transition: all 0.3s ease;
 }
@@ -747,7 +869,7 @@ body.dark-theme #confirmModal p {
     color: white !important;
     border-color: white;
     transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
 body.dark-theme .hero .btn {
@@ -761,120 +883,7 @@ body.dark-theme .hero .btn:hover {
     color: #2c3e50 !important;
 }
 
-h2 {
-    position: relative;
-    padding-bottom: 12px;
-    margin-bottom: 25px;
-}
-
-h2:after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 70px;
-    height: 4px;
-    background: linear-gradient(90deg, #3498db, #9b59b6);
-    border-radius: 4px;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-body.dark-theme .btn:not(.btn-danger) {
-    box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
-}
-
-body.dark-theme .btn:hover:not(.btn-danger) {
-    box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);
-}
-
-body.dark-theme .btn-danger:hover {
-    box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
-}
-
-body:not(.dark-theme) {
-    background-image: 
-        radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.03) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.03) 0%, transparent 50%);
-    background-attachment: fixed;
-}
-
-.quick-add-small {
-    transition: all 0.2s ease;
-    background: rgba(255,255,255,0.8);
-    backdrop-filter: blur(4px);
-}
-
-.quick-add-small:hover {
-    background: #3498db !important;
-    color: white !important;
-    transform: scale(1.2) rotate(90deg);
-}
-
-body:not(.dark-theme) .hero h1,
-body:not(.dark-theme) .hero p {
-    color: white !important;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-/* Исправление цветов в светлой теме */
-body:not(.dark-theme) h1,
-body:not(.dark-theme) h2,
-body:not(.dark-theme) h3,
-body:not(.dark-theme) p,
-body:not(.dark-theme) span,
-body:not(.dark-theme) a,
-body:not(.dark-theme) li,
-body:not(.dark-theme) label {
-    color: #2c3e50;
-}
-
-body:not(.dark-theme) header {
-    background: #2c3e50 !important;
-}
-
-body:not(.dark-theme) .logo a,
-body:not(.dark-theme) nav ul li a {
-    color: #ecf0f1 !important;
-}
-
-body:not(.dark-theme) .price {
-    color: #27ae60 !important;
-}
-
-body:not(.dark-theme) .btn {
-    background: #3498db;
-    color: white !important;
-}
-
-body:not(.dark-theme) .btn-danger {
-    background: #e74c3c;
-    color: white !important;
-}
-
-body:not(.dark-theme) .filter-btn {
-    background: #ecf0f1;
-    color: #2c3e50 !important;
-}
-
-body:not(.dark-theme) .filter-btn.active {
-    background: #3498db;
-    color: white !important;
-}
-
-body:not(.dark-theme) .cart-table th {
-    background: #f8f9fa;
-    color: #2c3e50 !important;
-}
-
-body:not(.dark-theme) .notification {
-    background: white;
-    color: #2c3e50 !important;
-}
-
-/* ==================== HERO SLIDER ==================== */
+/* Стили для слайдера */
 .hero {
     padding: 0;
     margin: 0;
@@ -934,7 +943,7 @@ body:not(.dark-theme) .notification {
     height: 100%;
     text-align: center;
     color: white;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     padding: 0 20px;
 }
 
@@ -954,18 +963,7 @@ body:not(.dark-theme) .notification {
     animation: fadeInUp 0.6s 0.4s ease-out both;
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Кнопки навигации */
+/* Кнопки переключения слайдов */
 .slider-btn {
     position: absolute;
     top: 50%;
@@ -1029,7 +1027,7 @@ body:not(.dark-theme) .notification {
     background: rgba(255, 255, 255, 0.9);
 }
 
-/* Адаптивность слайдера */
+/* Адаптация слайдера */
 @media (max-width: 768px) {
     .hero-slider {
         height: 50vh;
@@ -1046,4 +1044,112 @@ body:not(.dark-theme) .notification {
         height: 40px;
         font-size: 22px;
     }
+}
+
+/* ----- 19. ДОПОЛНИТЕЛЬНЫЕ ДЕКОРАТИВНЫЕ ЭЛЕМЕНТЫ ----- */
+h2 {
+    position: relative;
+    padding-bottom: 12px;
+    margin-bottom: 25px;
+}
+
+h2:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 70px;
+    height: 4px;
+    background: linear-gradient(90deg, #3498db, #9b59b6);
+    border-radius: 4px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body.dark-theme .btn:not(.btn-danger) {
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+}
+
+body.dark-theme .btn:hover:not(.btn-danger) {
+    box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);
+}
+
+body.dark-theme .btn-danger:hover {
+    box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
+}
+
+body:not(.dark-theme) {
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.03) 0%, transparent 50%);
+    background-attachment: fixed;
+}
+
+.quick-add-small {
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+}
+
+.quick-add-small:hover {
+    background: #3498db !important;
+    color: white !important;
+    transform: scale(1.2) rotate(90deg);
+}
+
+/* Исправление цветов в светлой теме (чтобы текст не был белым) */
+body:not(.dark-theme) h1,
+body:not(.dark-theme) h2,
+body:not(.dark-theme) h3,
+body:not(.dark-theme) p,
+body:not(.dark-theme) span,
+body:not(.dark-theme) a,
+body:not(.dark-theme) li,
+body:not(.dark-theme) label {
+    color: #2c3e50;
+}
+
+body:not(.dark-theme) header {
+    background: #2c3e50 !important;
+}
+
+body:not(.dark-theme) .logo a,
+body:not(.dark-theme) nav ul li a {
+    color: #ecf0f1 !important;
+}
+
+body:not(.dark-theme) .price {
+    color: #27ae60 !important;
+}
+
+body:not(.dark-theme) .btn {
+    background: #3498db;
+    color: white !important;
+}
+
+body:not(.dark-theme) .btn-danger {
+    background: #e74c3c;
+    color: white !important;
+}
+
+body:not(.dark-theme) .filter-btn {
+    background: #ecf0f1;
+    color: #2c3e50 !important;
+}
+
+body:not(.dark-theme) .filter-btn.active {
+    background: #3498db;
+    color: white !important;
+}
+
+body:not(.dark-theme) .cart-table th {
+    background: #f8f9fa;
+    color: #2c3e50 !important;
+}
+
+body:not(.dark-theme) .notification {
+    background: white;
+    color: #2c3e50 !important;
 }

@@ -2,21 +2,22 @@
 <html lang="ru">                                 <!-- Корневой элемент, язык страницы — русский -->
 <head>                                           <!-- Метаданные и подключения -->
     <meta charset="UTF-8">                       <!-- Кодировка UTF-8 для корректного отображения кириллицы -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Настройки области просмотра для адаптивности -->
-  <!-- Ширина по ширине экрана, масштаб 1 -->
+    <!-- Адаптивный вьюпорт для правильного отображения на мобильных устройствах -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Карточка товара</title>               <!-- Заголовок вкладки браузера -->
-    <link rel="stylesheet" href="../css/style.css">  <!-- Подключение общих стилей магазина (путь на уровень выше) -->
+    <!-- Подключаем основные стили магазина (находимся в папке html, поэтому ../css/style.css) -->
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>                                           <!-- Видимое содержимое страницы -->
 
-    <!-- ==================== ШАПКА САЙТА ==================== -->
+    <!-- ==================== ШАПКА САЙТА (общая для всех страниц) ==================== -->
     <header>                                     <!-- Верхняя часть сайта -->
         <div class="container">                  <!-- Центрирующий контейнер -->
             <div class="logo">                   <!-- Блок логотипа -->
                 <a href="../index.html">Уют</a>   <!-- Ссылка на главную страницу (на уровень выше) -->
             </div>
             <nav>                                <!-- Навигационное меню -->
-                <ul>                             <!-- Ненумерованный список -->
+                <ul>                             <!-- Ненумерованный список пунктов меню -->
                     <li><a href="../index.html">Главная</a></li>      <!-- Пункт "Главная" -->
                     <li><a href="catalog.html">Каталог</a></li>      <!-- Пункт "Каталог" -->
                     <li>                                           <!-- Пункт "Корзина" -->
@@ -25,7 +26,7 @@
                             <span class="cart-count">0</span>       <!-- Счётчик товаров в корзине (обновляется JS) -->
                         </a>
                     </li>
-                    <li><a href="admin.html">Админ</a></li>
+                    <li><a href="admin.html">Админ</a></li>        <!-- Пункт "Админ" (панель управления) -->
                 </ul>
             </nav>
             <!-- Кнопка переключения светлой/тёмной темы -->
@@ -35,59 +36,75 @@
 
     <!-- ==================== ОСНОВНОЙ КОНТЕНТ ==================== -->
     <main>                                       <!-- Основное содержимое страницы -->
-        <!-- Контейнер для детальной информации о товаре, заполняется через JavaScript -->
+        <!-- Контейнер для детальной информации о товаре. JavaScript (product.js) -->
+        <!-- найдёт элемент по id="product-detail" и вставит в него карточку товара. -->
         <div class="container" id="product-detail"></div>
     </main>
 
     <!-- ==================== ПОДКЛЮЧЕНИЕ СКРИПТОВ ==================== -->
-    <script src="../js/data.js"></script>        <!-- Данные товаров и вспомогательные функции (products, getImagePath и т.д.) -->
-    <script src="../js/cart.js"></script>        <!-- Логика корзины (addToCart, updateCartCount и др.) -->
+    <!-- Библиотека Supabase для работы с облачной базой данных -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Наш файл с инициализацией клиента Supabase (URL и ключ) -->
+    <script src="../js/supabase.js"></script>
+    <!-- Основные скрипты магазина -->
+    <script src="../js/data.js"></script>        <!-- Управление товарами (загрузка из БД, массив products, getImagePath) -->
+    <script src="../js/cart.js"></script>        <!-- Логика корзины (addToCart, updateCartCount) -->
     <script src="../js/product.js"></script>     <!-- Скрипт для отрисовки карточки конкретного товара (берёт ID из URL) -->
     <script src="../js/theme.js"></script>       <!-- Переключение тёмной темы -->
-<!-- Библиотека Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Наш клиент -->
-<script src="../js/supabase.js"></script>
+
     <!-- ==================== КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ==================== -->
-    <!-- Фиксированный блок в правом верхнем углу для показа всплывающих сообщений -->
+    <!-- Фиксированный блок в правом верхнем углу для всплывающих сообщений -->
     <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
-    
+
     <!-- ==================== СКРИПТ УВЕДОМЛЕНИЙ (ВСТРОЕННЫЙ) ==================== -->
     <script>
-    (function() {                                          // Самовызывающаяся функция для изоляции
-        const container = document.getElementById('notification-container');  // Находим контейнер
-        if (!container) return;                            // Если контейнера нет — выходим
+        // Самовызывающаяся функция – изолирует переменные от глобальной области
+        (function() {
+            // Находим контейнер для уведомлений по его id
+            const container = document.getElementById('notification-container');
+            // Если контейнер отсутствует на странице, прекращаем выполнение
+            if (!container) return;
 
-        // Глобальная функция показа уведомлений
-        window.showNotification = function(message, type = 'success', duration = 3000) {
-            const notification = document.createElement('div');   // Создаём элемент уведомления
-            notification.className = 'notification ' + type;      // Добавляем классы (notification и тип: success/error/warning/info)
-            
-            // Выбор иконки в зависимости от типа
-            let icon = '✅';
-            if (type === 'error') icon = '❌';
-            else if (type === 'warning') icon = '⚠️';
-            else if (type === 'info') icon = 'ℹ️';
+            // Глобальная функция showNotification – будет доступна из любого скрипта
+            window.showNotification = function(message, type = 'success', duration = 3000) {
+                // Создаём div-элемент, который будет представлять уведомление
+                const notification = document.createElement('div');
+                // Добавляем CSS-классы: базовый 'notification' и класс типа (success/error/warning/info)
+                notification.className = 'notification ' + type;
 
-            // Внутренняя структура уведомления
-            notification.innerHTML = `
-                <span class="icon">${icon}</span>                <!-- Иконка -->
-                <span class="message">${message}</span>          <!-- Текст сообщения -->
-                <button class="close-btn">&times;</button>       <!-- Кнопка закрытия (крестик) -->
-            `;
-            container.appendChild(notification);                  // Добавляем в контейнер
+                // Выбираем иконку в зависимости от типа сообщения
+                let icon = '✅';
+                if (type === 'error') icon = '❌';
+                else if (type === 'warning') icon = '⚠️';
+                else if (type === 'info') icon = 'ℹ️';
 
-            const closeBtn = notification.querySelector('.close-btn');  // Находим кнопку закрытия
-            // Функция удаления уведомления с анимацией
-            const remove = () => {
-                notification.style.animation = 'fadeOut 0.2s forwards';  // Запускаем CSS-анимацию исчезновения
-                setTimeout(() => notification.remove(), 200);            // Удаляем элемент после завершения анимации
+                // Заполняем внутреннюю структуру уведомления
+                notification.innerHTML = `
+                    <span class="icon">${icon}</span>                <!-- Иконка -->
+                    <span class="message">${message}</span>          <!-- Текст сообщения -->
+                    <button class="close-btn">&times;</button>       <!-- Кнопка закрытия (крестик) -->
+                `;
+                // Добавляем уведомление в контейнер на странице
+                container.appendChild(notification);
+
+                // Находим кнопку закрытия внутри созданного уведомления
+                const closeBtn = notification.querySelector('.close-btn');
+                // Функция удаления уведомления с плавной анимацией
+                const remove = () => {
+                    // Запускаем CSS-анимацию исчезновения (fadeOut)
+                    notification.style.animation = 'fadeOut 0.2s forwards';
+                    // Через 200 мс (после окончания анимации) удаляем элемент из DOM
+                    setTimeout(() => notification.remove(), 200);
+                };
+                // Закрытие уведомления при клике на крестик
+                closeBtn.addEventListener('click', remove);
+                // Автоматическое закрытие через указанное время (если duration > 0)
+                if (duration > 0) setTimeout(remove, duration);
             };
-            closeBtn.addEventListener('click', remove);           // Закрытие по клику на крестик
-            if (duration > 0) setTimeout(remove, duration);      // Автоматическое закрытие через duration мс
-        };
-        console.log('✅ showNotification готов');                // Отладочное сообщение
-    })();
+            // Отладочное сообщение в консоль, чтобы убедиться, что скрипт загрузился
+            console.log('✅ showNotification готов');
+        })();
     </script>
+
 </body>
 </html>
