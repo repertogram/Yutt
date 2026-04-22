@@ -7,6 +7,7 @@
 
 /** Ключ для хранения массива товаров в localStorage */
 const STORAGE_KEY = 'furniture_products';
+const DATA_VERSION = 2;
 
 /** Начальный набор товаров, используемый при первом запуске или сбросе данных */
 const defaultProducts = [
@@ -126,11 +127,10 @@ const defaultProducts = [
  * @type {Array<Object>}
  */
 let products = JSON.parse(localStorage.getItem(STORAGE_KEY));
-
-// Если массив пуст или отсутствует, инициализируем его значениями по умолчанию и сохраняем
-if (!products || products.length === 0) {
+if (!products || products.length === 0 || !localStorage.getItem('data_version') || parseInt(localStorage.getItem('data_version')) !== DATA_VERSION) {
     products = defaultProducts;
-    saveProducts();      // Сохраняем начальные товары в localStorage
+    saveProducts();
+    localStorage.setItem('data_version', DATA_VERSION);
 }
 
 // ---------- 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
