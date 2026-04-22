@@ -125,10 +125,12 @@
         window.removeFromCart = removeFromCart;
 
         // После полной загрузки DOM выполняем отрисовку корзины и обновление счётчика в шапке
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCart();
-            updateCartCount();
-        });
+document.addEventListener('DOMContentLoaded', async () => {
+    // Загружаем товары из Supabase перед отрисовкой корзины
+    await loadProducts();
+    renderCart();
+    updateCartCount();
+});
     </script>
 
     <!-- Скрипт переключения тёмной темы -->
@@ -175,6 +177,9 @@
         console.log('✅ showNotification готов');                // Отладочное сообщение в консоль
     })();
     </script>
-
+<!-- Библиотека Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Наш клиент -->
+<script src="../js/supabase.js"></script>
 </body>
 </html>

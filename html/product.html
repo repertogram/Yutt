@@ -44,7 +44,10 @@
     <script src="../js/cart.js"></script>        <!-- Логика корзины (addToCart, updateCartCount и др.) -->
     <script src="../js/product.js"></script>     <!-- Скрипт для отрисовки карточки конкретного товара (берёт ID из URL) -->
     <script src="../js/theme.js"></script>       <!-- Переключение тёмной темы -->
-
+<!-- Библиотека Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Наш клиент -->
+<script src="../js/supabase.js"></script>
     <!-- ==================== КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ==================== -->
     <!-- Фиксированный блок в правом верхнем углу для показа всплывающих сообщений -->
     <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
@@ -86,6 +89,5 @@
         console.log('✅ showNotification готов');                // Отладочное сообщение
     })();
     </script>
-
 </body>
 </html>

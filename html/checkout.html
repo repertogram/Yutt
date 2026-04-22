@@ -73,121 +73,107 @@
     
 
 <script>
-    // ==================== МАСКА ТЕЛЕФОНА + СОХРАНЕНИЕ ЗАКАЗА В LOCALSTORAGE ====================
+    // ==================== МАСКА ТЕЛЕФОНА + СОХРАНЕНИЕ ЗАКАЗА В SUPABASE ====================
 
     const phoneInput = document.querySelector('input[name="phone"]');
     phoneInput.value = '+7 (___) ___-__-__';
 
-    // Функция применения маски
     function applyMask(value) {
         let digits = value.replace(/\D/g, '');
-        if (digits.startsWith('7') || digits.startsWith('8')) {
-            digits = digits.substring(1);
-        }
+        if (digits.startsWith('7') || digits.startsWith('8')) digits = digits.substring(1);
         digits = digits.substring(0, 10);
         let formatted = '+7';
         if (digits.length > 0) formatted += ' (' + digits.substring(0, 3);
         if (digits.length >= 4) formatted += ') ' + digits.substring(3, 6);
         if (digits.length >= 7) formatted += '-' + digits.substring(6, 8);
         if (digits.length >= 9) formatted += '-' + digits.substring(8, 10);
-        // Заполняем оставшиеся подчёркивания
-        const totalDigits = digits.length;
-        if (totalDigits < 3) formatted += '_'.repeat(3 - totalDigits);
-        if (totalDigits < 6) formatted += '_'.repeat(Math.min(3, 6 - Math.max(3, totalDigits)));
-        if (totalDigits < 8) formatted += '_'.repeat(Math.min(2, 8 - Math.max(6, totalDigits)));
-        if (totalDigits < 10) formatted += '_'.repeat(Math.min(2, 10 - Math.max(8, totalDigits)));
+        const total = digits.length;
+        if (total < 3) formatted += '_'.repeat(3 - total);
+        if (total < 6) formatted += '_'.repeat(Math.min(3, 6 - Math.max(3, total)));
+        if (total < 8) formatted += '_'.repeat(Math.min(2, 8 - Math.max(6, total)));
+        if (total < 10) formatted += '_'.repeat(Math.min(2, 10 - Math.max(8, total)));
         return formatted;
     }
 
-    phoneInput.addEventListener('focus', function() {
-        if (this.value === '+7 (___) ___-__-__') this.select();
-    });
-
+    phoneInput.addEventListener('focus', () => { if (phoneInput.value === '+7 (___) ___-__-__') phoneInput.select(); });
     phoneInput.addEventListener('input', function() {
         const cursorPos = this.selectionStart;
-        const oldLength = this.value.length;
         const masked = applyMask(this.value);
         this.value = masked;
-        const newLength = masked.length;
-        let newPos = cursorPos;
-        if (oldLength < newLength) newPos = cursorPos + (newLength - oldLength);
-        this.setSelectionRange(newPos, newPos);
+        this.setSelectionRange(cursorPos, cursorPos);
     });
-
     phoneInput.addEventListener('blur', function() {
-        const digits = this.value.replace(/\D/g, '');
-        if (digits === '7' || digits === '') this.value = '+7 (___) ___-__-__';
+        if (this.value.replace(/\D/g, '').length <= 1) this.value = '+7 (___) ___-__-__';
     });
 
     // Обработчик отправки формы
-    document.getElementById('checkout-form').addEventListener('submit', function(e) {
+    document.getElementById('checkout-form').addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // 1. Получаем данные формы
+        // Убедимся, что товары загружены из Supabase
+        if (!products || products.length === 0) {
+            await loadProducts();
+        }
+
         const name = document.querySelector('input[name="name"]').value.trim();
         const address = document.querySelector('textarea[name="address"]').value.trim();
-        let phoneRaw = phoneInput.value;
-        let digits = phoneRaw.replace(/\D/g, '');
-        if (digits.length > 1 && (digits.startsWith('7') || digits.startsWith('8'))) {
-            digits = digits.substring(1);
-        }
-
-        // 2. Валидация телефона
-        if (digits.length !== 10) {
-            showNotification('Введите полный номер телефона (10 цифр после кода)', 'error');
-            return;
-        }
+        let digits = phoneInput.value.replace(/\D/g, '');
+        if (digits.length > 1 && (digits.startsWith('7') || digits.startsWith('8'))) digits = digits.substring(1);
+        if (digits.length !== 10) return showNotification('Введите полный номер (10 цифр)', 'error');
         const finalPhone = '+7' + digits;
 
-        // 3. Получаем текущую корзину
         const cart = getCart();
-        if (cart.length === 0) {
-            showNotification('Корзина пуста', 'error');
-            return;
-        }
+        if (!cart.length) return showNotification('Корзина пуста', 'error');
 
-        // 4. Формируем объект заказа
+        // Формируем позиции заказа, сохраняя название и цену на момент оформления
         const orderItems = cart.map(item => {
             const product = products.find(p => p.id === item.id);
             return {
-                id: item.id,
-                name: product ? product.name : 'Товар удалён',
+                product_id: item.id,
+                product_name: product ? product.name : 'Товар удалён',
                 price: product ? product.price : 0,
                 quantity: item.quantity
             };
         });
 
         const total = getCartTotal();
+        const orderId = Date.now();
+        const orderDate = new Date().toLocaleString('ru-RU');
 
-        const newOrder = {
-            id: Date.now(),                         // уникальный ID по времени
-            date: new Date().toLocaleString('ru-RU'), // читаемая дата
-            customerName: name,
-            phone: finalPhone,
-            address: address,
-            items: orderItems,
-            total: total
-        };
+        // Сохраняем заказ в Supabase
+        const { error: orderError } = await window.supabaseClient
+            .from('orders')
+            .insert([{
+                id: orderId,
+                date: orderDate,
+                customer_name: name,
+                phone: finalPhone,
+                address: address,
+                total: total
+            }]);
 
-        // 5. Сохраняем заказ в localStorage
-        const orders = JSON.parse(localStorage.getItem('furniture_orders')) || [];
-        orders.push(newOrder);
-        localStorage.setItem('furniture_orders', JSON.stringify(orders));
+        if (orderError) {
+            console.error(orderError);
+            return showNotification('Ошибка оформления заказа', 'error');
+        }
 
-        // 6. Очищаем корзину и обновляем счётчик
+        // Сохраняем позиции заказа
+        const itemsToInsert = orderItems.map(it => ({ ...it, order_id: orderId }));
+        await window.supabaseClient.from('order_items').insert(itemsToInsert);
+
+        // Очищаем корзину
         localStorage.removeItem('cart');
         updateCartCount();
 
-        // 7. Сообщение об успехе
+        // Сообщение об успехе
         document.getElementById('order-message').innerHTML = `
             <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px;">
-                Спасибо за заказ! Мы свяжемся с вами по номеру ${finalPhone} в ближайшее время.
+                Спасибо за заказ! Мы свяжемся с вами по номеру ${finalPhone}.
             </div>
         `;
-
-        // 8. Сбрасываем форму
         e.target.reset();
         phoneInput.value = '+7 (___) ___-__-__';
+        showNotification('Заказ оформлен!', 'success');
     });
 </script>
 
@@ -232,6 +218,9 @@
         console.log('✅ showNotification готов');                // Отладочное сообщение
     })();
     </script>
-
+<!-- Библиотека Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Наш клиент -->
+<script src="../js/supabase.js"></script>
 </body>
 </html>

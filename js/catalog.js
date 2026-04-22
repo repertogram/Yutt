@@ -80,8 +80,9 @@ function setupFilters() {
  * Инициализация после полной загрузки DOM.
  * Выполняет первичную отрисовку каталога, настраивает фильтры и обновляет счётчик корзины.
  */
-document.addEventListener('DOMContentLoaded', () => {
-    renderCatalog();       // Отрисовываем каталог с фильтром по умолчанию ('all')
-    setupFilters();        // Вешаем обработчики на кнопки фильтров
-    updateCartCount();     // Обновляем число на значке корзины (функция из cart.js)
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadProducts();        // ← загружаем товары из Supabase
+    renderCatalogInternal();     // ← рендерим каталог
+    setupFilters();
+    updateCartCount();
 });
