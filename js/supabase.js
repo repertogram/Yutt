@@ -27,7 +27,7 @@
             window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             
             // Выводим в консоль сообщение, что всё готово – для отладки.
-            console.log('✅ Supabase client готов');
+            console.log('Supabase client готов');
             
             // Генерируем пользовательское событие 'supabase-ready' на случай,
             // если кому-то нужно дождаться готовности клиента.
