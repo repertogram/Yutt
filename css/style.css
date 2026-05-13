@@ -1152,3 +1152,14 @@ body:not(.dark-theme) .notification {
     background: white;
     color: #2c3e50 !important;
 }
+
+/* Подсветка активного пункта меню */
+nav ul li a.active {
+    color: #f39c12 !important;
+    border-bottom: 2px solid #f39c12;
+    padding-bottom: 3px;
+}
+body.dark-theme nav ul li a.active {
+    color: #f1c40f !important;
+    border-bottom-color: #f1c40f;
+}

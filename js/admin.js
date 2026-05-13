@@ -350,7 +350,7 @@ function showConfirmModal(message, onConfirm) {
     confirmModal.style.display = 'flex'; // Показываем окно
 }
 
-// Обработчик клика по кнопке удаления заказа (🗑️)
+// Обработчик клика по кнопке удаления заказа
 document.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-action="delete-order"]');
     if (!btn) return;
@@ -365,6 +365,16 @@ document.addEventListener('click', async (e) => {
         }
     });
 });
+
+// Обработчик клавиши Enter в поле пароля
+if (passwordInput) {
+    passwordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();   // чтобы случайно не отправить форму (если она есть)
+            loginBtn.click();     // имитируем клик по кнопке "Войти"
+        }
+    });
+}
 
 // ==================== ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ====================
 document.addEventListener('DOMContentLoaded', () => {

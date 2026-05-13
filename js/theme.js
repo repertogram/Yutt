@@ -52,5 +52,18 @@
         // Если сейчас тёмная тема – кнопка предлагает перейти на светлую (☀️ Светлая),
         // если светлая – на тёмную (🌙 Тёмная).
         themeToggle.textContent = isDark ? '☀️ Светлая' : '🌙 Тёмная';
+        
+    });
+    // ====== ПОДСВЕТКА АКТИВНОГО ПУНКТА МЕНЮ ======
+    const currentPath = window.location.pathname;
+    let currentFile = currentPath.split('/').pop();   // например, "catalog.html"
+    if (currentFile === '') currentFile = 'index.html'; // корень сайта – главная
+
+    const navLinks = document.querySelectorAll('nav ul li a');
+    navLinks.forEach(link => {
+        const hrefFile = link.getAttribute('href').split('/').pop(); // берём имя файла из ссылки
+        if (hrefFile === currentFile) {
+            link.classList.add('active');
+        }
     });
 })();   // Круглые скобки в конце означают немедленный вызов функции сразу после её объявления.
